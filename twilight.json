@@ -1,10 +1,10 @@
 {
   "type": "react",
   "name": {
-    "ar": "shield-pro",
-    "en": "shield-pro"
+    "ar": "شيلدو برو",
+    "en": "shieldo-pro-theme"
   },
-  "repository": "https://github.com/SallaApp/theme-raed-react",
+  "repository": "https://github.com/Abdelrahman-Moharram/shield-pro",
   "author_email": "support@salla.sa",
   "features": [
     "mega-menu",
