@@ -1,0 +1,149 @@
+{
+  "enabled": true,
+  "settings": {
+    "header_layout": "default",
+    "enable_more_menu": true,
+    "header_show_store_info": true,
+    "header_store_info_home_only": true,
+    "header_is_sticky": true,
+    "topnav_is_dark": true,
+    "important_links": true,
+    "squar_photo_bg_image_size": "contain",
+    "vertical_fixed_products": false,
+    "is_more_button_enabled": false,
+    "footer_is_dark": true,
+    "product_show_breadcrumbs": true,
+    "product_index_show_breadcrumbs": true,
+    "enable_add_product_toast": true,
+    "notify_when_available_in_card": true,
+    "sticky_add_to_cart": true,
+    "show_tags": true,
+    "slider_background_size": "contain",
+    "imageZoom": false
+  },
+  "layout": [
+    {
+      "id": "b-2a82fc78c89e",
+      "path": "enhanced-slider",
+      "fields": {
+        "key": "186b3f4f-25cf-4d3c-abca-cef7eed6f0ab",
+        "in_container": false,
+        "auto_play": true,
+        "slides": [
+          {
+            "image": "/assets/theme/hero_car_transparent.png",
+            "title": "حماية تدوم وراحة تستحقها سيارتك",
+            "description": "حلول متقدمة لعزل الحرارة وحماية طلاء سيارتك، مصممة لتمنحك راحة أكبر وتحافظ على مظهر سيارتك.",
+            "btnname": "اكتشف منتجات الحماية",
+            "url": "#products",
+            "without_overlay": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "b-618e53ebd681",
+      "path": "photos-slider-with-text",
+      "fields": {
+        "key": "7b65ae0b-e4d0-49d0-b723-7bf3547d5deb",
+        "title": "ما الذي تحتاجه سيارتك؟",
+        "in_container": false,
+        "auto_play": true,
+        "slides": [
+          {
+            "image": "/assets/theme/hero_car_transparent.png",
+            "title": "حماية تدوم وراحة تستحقها سيارتك",
+            "description": "حلول متقدمة لعزل الحرارة وحماية طلاء سيارتك، مصممة لتمنحك راحة أكبر وتحافظ على مظهر سيارتك.",
+            "btnname": "اكتشف منتجات الحماية",
+            "url": "#products",
+            "without_overlay": true
+          }
+        ]
+      }
+    },
+    {
+      "id": "b-e49243709354",
+      "path": "featured-products",
+      "fields": {
+        "key": "6a73e723-1357-43a3-ac70-de94a15280ef",
+        "main_product_title": "",
+        "main_product": [],
+        "items": [
+          {
+            "name": "أحدث المنتجات",
+            "type": "latest_products",
+            "category": "",
+            "chosen_products": null,
+            "special_product": null
+          }
+        ],
+        "show_method": "products_without_special_product"
+      }
+    },
+    {
+      "id": "b-why-us-shieldo",
+      "path": "store-features",
+      "fields": {
+        "key": "b-why-us-shieldo-key",
+        "title": "لماذا شيلدو برو ؟",
+        "in_container": false
+      }
+    },
+    {
+      "id": "b-protection-banner",
+      "path": "protection-banner",
+      "fields": {
+        "key": "b-protection-banner-key",
+        "title": "درع غير مرئي لطلاء سيارتك",
+        "description": "حماية متقدمة تساعد على الحفاظ على مظهر الطلاء ومقاومته للخدوش والعوامل الخارجية.",
+        "btnname": "اكتشف أفلام حماية الطلاء",
+        "url": "#products",
+        "image": "/assets/theme/shield_banner_3d.png"
+      }
+    },
+    {
+      "id": "b-how-to-start",
+      "path": "how-to-start",
+      "fields": {
+        "key": "b-how-to-start-key",
+        "title": "كيف تبدأ ؟"
+      }
+    },
+    {
+      "id": "b-installation-centers",
+      "path": "installation-centers",
+      "fields": {
+        "key": "b-installation-centers-key",
+        "title": "مراكز تركيب معتمدة",
+        "descriptionPrefix": "يمكنك الوصول إلى مراكز التركيب المعتمدة لتركيب منتجات",
+        "brandHighlight": "شيلدو بــــرو",
+        "btnname": "عرض مراكز التركيب",
+        "url": "#installers",
+        "image": "/assets/theme/image_9.png"
+      }
+    },
+    {
+      "id": "b-warranty-banner",
+      "path": "warranty-banner",
+      "fields": {
+        "key": "b-warranty-banner-key",
+        "title": "ضمان منتجك",
+        "description": "فعّل ضمان منتجك باستخدام الرقم التسلسلي الموجود على المنتج.",
+        "btnname": "تفعيل الضمان",
+        "url": "#warranty",
+        "image": "/assets/theme/warranty_shield_3d.png"
+      }
+    },
+    {
+      "id": "b-7c6069cb7471",
+      "path": "blog",
+      "fields": {
+        "key": "f3372a16-2ec0-4345-b03f-867f443f628e",
+        "title": "المدونة",
+        "description": "",
+        "background_color": "#f9fafb",
+        "posts": []
+      }
+    }
+  ]
+}
