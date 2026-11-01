@@ -1,11 +1,11 @@
 {
   "type": "react",
   "name": {
-    "ar": "شيلدو برو",
-    "en": "shieldo-pro-theme"
+    "ar": "شيلدو برو ثيم",
+    "en": "shieldo-pro-custom-theme"
   },
   "repository": "https://github.com/Abdelrahman-Moharram/shield-pro",
-  "author_email": "support@salla.sa",
+  "author_email": "info@shieldopro.com",
   "features": [
     "mega-menu",
     "fonts",
