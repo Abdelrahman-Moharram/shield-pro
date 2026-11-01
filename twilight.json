@@ -1,8 +1,36 @@
 {
-    "type": "react",
-    "name": {
-        "ar": "shield-pro",
-        "en": "shield-pro"
+  "type": "react",
+  "name": {
+    "ar": "شيلدو برو ثيم",
+    "en": "shieldo-pro-custom-theme"
+  },
+  "repository": "https://github.com/Abdelrahman-Moharram/shield-pro",
+  "author_email": "info@shieldopro.com",
+  "features": [
+    "mega-menu",
+    "fonts",
+    "color",
+    "breadcrumb",
+    "unite-cards-height",
+    "component-fixed-banner",
+    "component-fixed-products",
+    "component-products-slider",
+    "component-photos-slider",
+    "component-parallax-background",
+    "component-testimonials",
+    "component-square-photos",
+    "component-store-features",
+    "component-youtube",
+    "menu-images",
+    "filters"
+  ],
+  "settings": [
+    {
+      "type": "static",
+      "format": "title",
+      "id": "static-label2",
+      "value": "<div class='rounded-lg' style='background-color: #21636d; display: flex; justify-content: center; align-items: center;padding: 15px;margin-bottom: 20px !important; flex-direction: column;gap: 15px;'><h6 style='color: #ffffff;font-size: 15px; font-weight: bold;'> خيارات الهيدر</h6></div>",
+      "variant": "h6"
     },
     "repository": "https://github.com/Abdelrahman-Moharram/shield-pro",
     "author_email": "abdulrahman.moharram@siryah.com",
