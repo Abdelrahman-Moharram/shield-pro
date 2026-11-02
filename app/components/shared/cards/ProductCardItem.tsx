@@ -22,13 +22,15 @@ export interface ProductItem {
 
 export interface ProductCardItemProps {
   product: Product | ProductItem;
+  className?: string;
+  [key: string]: unknown;
 }
 
 function isSallaProduct(product: Product | ProductItem): product is Product {
-  return 'regular_price' in product || 'is_on_sale' in product || 'main_image' in product;
+  return 'name' in product || 'regular_price' in product || 'is_on_sale' in product || 'main_image' in product;
 }
 
-export function ProductCardItem({ product }: ProductCardItemProps) {
+export function ProductCardItem({ product, className = '' }: ProductCardItemProps) {
   const [isAdding, setIsAdding] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -42,13 +44,16 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
     : product.description;
   const resolvedDesc = rawDesc || '';
 
-  const resolvedPrice = isSalla ? (product.sale_price ?? product.price) : product.price;
+  const isOnSale = Boolean(isSalla ? product.is_on_sale : product.originalPrice);
+  const resolvedPrice = isSalla
+    ? (isOnSale && product.sale_price ? product.sale_price : product.price)
+    : product.price;
   const resolvedOriginalPrice = isSalla
-    ? (product.is_on_sale ? product.regular_price : undefined)
+    ? (isOnSale ? product.regular_price : undefined)
     : product.originalPrice;
 
   const resolvedImage = isSalla
-    ? product.image?.url || '/assets/theme/image_8.png'
+    ? product.image?.url || (product as any).main_image || '/assets/theme/image_8.png'
     : product.image;
 
   const resolvedUrl = isSalla
@@ -99,7 +104,8 @@ export function ProductCardItem({ product }: ProductCardItemProps) {
 
   return (
     <div
-      className="group relative bg-white dark:bg-[#252525] rounded-2xl p-3.5 sm:p-4 border border-gray-100 dark:border-neutral-800 shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between h-full text-right"
+      data-testid="product-card"
+      className={`group relative bg-white dark:bg-[#252525] rounded-2xl p-3.5 sm:p-4 border border-gray-100 dark:border-neutral-800 shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between h-full text-right ${className}`}
       dir="rtl"
     >
       {/* Product Image */}

@@ -28,6 +28,17 @@ salla-slider{
       height: 80px !important;
       max-width: 80px;
       flex: 0 0 80px;
+      border-radius: 0.75rem !important;
+      overflow: hidden;
+      border: 1.5px solid #E5E7EB;
+      transition: all 0.2s ease;
+      cursor: pointer;
+
+      &.swiper-slide-thumb-active,
+      &:hover {
+        border-color: rgb(var(--color-primary-rgb, 216 159 45)) !important;
+        box-shadow: 0 0 0 2px rgba(216, 159, 45, 0.25) !important;
+      }
     }
 
     .s-slider-thumbs .slide--one-fourth{

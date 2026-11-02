@@ -1,3 +1,4 @@
+
 {
   "type": "react",
   "name": {
@@ -7,6 +8,7 @@
   "repository": "https://github.com/Abdelrahman-Moharram/shield-pro",
   "author_email": "info@shieldopro.com",
   "features": [
+    "custom-fields",
     "mega-menu",
     "fonts",
     "color",
@@ -346,6 +348,186 @@
       "required": false,
       "value": false,
       "selected": false
+    },
+    {
+      "type": "boolean",
+      "icon": "sicon-toggle-off",
+      "label": "إظهار قسم المواصفات الفنية في صفحة المنتج",
+      "description": "يعرض بطاقات المواصفات الفنية المستخرجة من بيانات المنتج الإضافية",
+      "id": "product_show_specs",
+      "format": "switch",
+      "required": false,
+      "value": true,
+      "selected": true
+    },
+    {
+      "type": "boolean",
+      "icon": "sicon-toggle-off",
+      "label": "إظهار قسم لماذا تختار هذا المنتج",
+      "description": null,
+      "id": "product_show_features",
+      "format": "switch",
+      "required": false,
+      "value": true,
+      "selected": true
+    },
+    {
+      "type": "string",
+      "format": "text",
+      "label": "عنوان قسم المميزات",
+      "description": null,
+      "id": "product_features_title",
+      "value": "لماذا تختار هذا المنتج؟",
+      "required": false
+    },
+    {
+      "type": "string",
+      "format": "text",
+      "label": "عنوان الميزة الأولى",
+      "description": null,
+      "id": "product_feature1_title",
+      "value": "تخفيض فوري للحرارة",
+      "required": false
+    },
+    {
+      "type": "string",
+      "format": "text",
+      "label": "وصف الميزة الأولى",
+      "description": null,
+      "id": "product_feature1_desc",
+      "value": "يقلل بشكل كبير من حرارة المقصورة لراحة أكبر أثناء القيادة.",
+      "required": false
+    },
+    {
+      "type": "string",
+      "format": "text",
+      "label": "عنوان الميزة الثانية",
+      "description": null,
+      "id": "product_feature2_title",
+      "value": "خصوصية مع وضوح",
+      "required": false
+    },
+    {
+      "type": "string",
+      "format": "text",
+      "label": "وصف الميزة الثانية",
+      "description": null,
+      "id": "product_feature2_desc",
+      "value": "يوفر الخصوصية التي تحتاجها دون التأثير على وضوح الرؤية ليلاً.",
+      "required": false
+    },
+    {
+      "type": "string",
+      "format": "text",
+      "label": "عنوان الميزة الثالثة",
+      "description": null,
+      "id": "product_feature3_title",
+      "value": "حماية ضد الأشعة",
+      "required": false
+    },
+    {
+      "type": "string",
+      "format": "text",
+      "label": "وصف الميزة الثالثة",
+      "description": null,
+      "id": "product_feature3_desc",
+      "value": "يحمي الجلود والمقصورة من التلف الناتج عن الشمس الضارة.",
+      "required": false
+    },
+    {
+      "type": "boolean",
+      "icon": "sicon-toggle-off",
+      "label": "إظهار بنر تركيب المنتج",
+      "description": null,
+      "id": "product_show_install_banner",
+      "format": "switch",
+      "required": false,
+      "value": true,
+      "selected": true
+    },
+    {
+      "type": "string",
+      "format": "text",
+      "label": "عنوان بنر التركيب",
+      "description": "مثال: ترغب في تركيب المنتج؟",
+      "id": "product_install_banner_title",
+      "value": "",
+      "required": false
+    },
+    {
+      "type": "string",
+      "format": "textarea",
+      "label": "وصف بنر التركيب",
+      "description": "مثال: يمكنك الوصول إلى مراكز التركيب المعتمدة للحصول على أفضل جودة تركيب.",
+      "id": "product_install_banner_desc",
+      "value": "",
+      "required": false
+    },
+    {
+      "type": "string",
+      "format": "text",
+      "label": "نص زر بنر التركيب",
+      "description": "مثال: عرض مراكز التركيب",
+      "id": "product_install_banner_btn",
+      "value": "",
+      "required": false
+    },
+    {
+      "type": "string",
+      "format": "url",
+      "label": "رابط زر بنر التركيب",
+      "id": "product_install_banner_url",
+      "value": "/branches",
+      "required": false
+    },
+    {
+      "type": "string",
+      "format": "text",
+      "label": "عنوان إشعار التوافق مع المرور",
+      "description": "مثال: التوافق مع إرشادات المرور — يظهر فقط لمنتجات أفلام العزل. اتركه فارغاً لإخفاء الإشعار.",
+      "id": "product_traffic_compliance_title",
+      "value": "",
+      "required": false
+    },
+    {
+      "type": "string",
+      "format": "textarea",
+      "label": "نص إشعار التوافق مع المرور",
+      "description": "مثال: هذا المنتج متوافق مع إرشادات المرور السعودي، يرجى مراجعة أنظمة المرور المحلية قبل الاستخدام.",
+      "id": "product_traffic_compliance_text",
+      "value": "",
+      "required": false
+    },
+    {
+      "type": "static",
+      "format": "line",
+      "id": "static-line-branches"
+    },
+    {
+      "type": "static",
+      "format": "title",
+      "id": "static-label-branches",
+      "value": "<div style='padding:10px 0 4px'><strong>مراكز التركيب المعتمدة</strong></div>"
+    },
+    {
+      "id": "installation_centers",
+      "type": "collection",
+      "format": "collection",
+      "label": "مراكز التركيب المعتمدة",
+      "description": "أضف مراكز التركيب هنا — ستظهر في صفحة /branches",
+      "value": [],
+      "required": false,
+      "fields": [
+        { "id": "name",     "type": "string", "format": "text",     "label": "اسم المركز",        "required": true  },
+        { "id": "city",     "type": "string", "format": "text",     "label": "المدينة",           "required": true  },
+        { "id": "district", "type": "string", "format": "text",     "label": "الحي",              "required": false },
+        { "id": "address",  "type": "string", "format": "text",     "label": "العنوان التفصيلي", "required": false },
+        { "id": "phone",    "type": "string", "format": "text",     "label": "رقم الهاتف",        "required": false },
+        { "id": "whatsapp", "type": "string", "format": "text",     "label": "رقم واتساب (مع مفتاح الدولة، مثال 96650…)", "required": false },
+        { "id": "mapUrl",   "type": "string", "format": "url",      "label": "رابط خرائط جوجل",  "required": false },
+        { "id": "hours",    "type": "string", "format": "text",     "label": "ساعات العمل",       "required": false },
+        { "id": "services", "type": "string", "format": "textarea", "label": "الخدمات (مفصولة بفاصلة)", "required": false }
+      ]
     }
   ],
   "components": [

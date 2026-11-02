@@ -48,8 +48,11 @@ module.exports = {
           DEFAULT: 'rgb(var(--color-primary-rgb, 216 159 45) / <alpha-value>)',
           hover: '#BB8923',
           dark: '#956C1E',
+          d: '#956C1E',
           light: '#F3E1BE',
+          l: '#F3E1BE',
         },
+        'primary-d': '#956C1E',
         'primary-dark': '#956C1E',
         secondary: {
           DEFAULT: 'rgb(var(--color-secondary-rgb, 54 54 54) / <alpha-value>)',

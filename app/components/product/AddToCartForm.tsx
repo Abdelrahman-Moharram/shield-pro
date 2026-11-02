@@ -1,510 +1,362 @@
-import { SallaAddProductButton } from '@salla.sa/twilight-components-react/add-product-button';
-import { SallaButton } from '@salla.sa/twilight-components-react/button';
-import { SallaCountDown } from '@salla.sa/twilight-components-react/count-down';
-import { SallaFileUpload } from '@salla.sa/twilight-components-react/file-upload';
-import { SallaGifting } from '@salla.sa/twilight-components-react/gifting';
-import { SallaMultipleBundleProduct } from '@salla.sa/twilight-components-react/multiple-bundle-product';
-// Use the eager (non-deferred) Core export: product options are an essential form
-// control, and the deferred wrapper's visibility-triggered hydration races with the
-// gallery's image layout shift and gets stuck on the skeleton, so options never appear.
-import { SallaProductOptionsCore as SallaProductOptions } from '@salla.sa/twilight-components-react/product-options';
-import { SallaProductSizeGuide } from '@salla.sa/twilight-components-react/product-size-guide';
-import { SallaQuantityInput } from '@salla.sa/twilight-components-react/quantity-input';
-import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
-import { hapticImpact } from '@salla.sa/twilight-theme-engine/native-app';
-import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
-import { getActiveCurrency } from '@salla.sa/twilight-theme-engine/api/client';
-import { CurrencySymbol } from '@salla.sa/twilight-theme-engine/common';
-import type { Product } from '@salla.sa/twilight-theme-engine/types';
 import type { ReactNode } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { usePriceBump } from '../../hooks/usePriceBump';
-
-/** The web component's `type="submit"` path skips its own loader, so drive the
-    inner `<salla-button>` spinner by hand. */
-type LoadableButton = HTMLElement & { load?: () => void; stop?: () => void };
-const addButton = (form: HTMLFormElement | null): LoadableButton | null =>
-  (form?.querySelector('salla-button') as LoadableButton | null) ?? null;
-
-type ProductOptionsElement = HTMLElement & { validateAndScroll?: () => Promise<boolean> };
+import { useEffect, useRef, useState } from 'react';
+import { hapticImpact } from '@salla.sa/twilight-theme-engine/native-app';
+import { getActiveCurrency } from '@salla.sa/twilight-theme-engine/api/client';
+import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
+import type { Product, ProductOption } from '@salla.sa/twilight-theme-engine/types';
+import { getProductCustomFields, isAutomotiveTintProduct, type CustomFieldItem } from './productHelpers';
 
 interface AddToCartFormProps {
   product: Product;
+  initialProduct?: Product;
   stickyAddToCart?: boolean;
   giftingIntro?: string;
   formStartSlot?: ReactNode;
   formEndSlot?: ReactNode;
 }
 
-/** True when the click came from the buy-now widget (`<salla-mini-checkout-widget>`,
- *  a shadow-DOM element — hence `composedPath`, not `closest`). */
-const isQuickBuyClick = (e: { nativeEvent: Event }) =>
-  e.nativeEvent
-    .composedPath()
-    .some((node) => (node as HTMLElement).localName === 'salla-mini-checkout-widget');
+/**
+ * Renders one product option field matching the type returned by Salla backend.
+ */
+function renderProductOptionField(opt: ProductOption, priceCurrency: any) {
+  const values = opt.details || opt.values || [];
+  const type = (opt.type || '').toLowerCase();
+  const baseInput = 'w-full h-11 bg-[#F3F4F6] hover:bg-gray-200/80 focus:bg-white border border-transparent focus:border-[#CCA352] rounded-xl px-4 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none transition-all box-border';
 
-// Forms whose buy-now widget was just clicked. The widget lives inside the product form and
-// its click must never add the product to the cart, so the one submit that click can cause
-// (it runs in the same task, right after the click) is dropped. The flag is cleared as soon
-// as it has done that, or when the task ends — a later, deliberate add-to-cart press is
-// never swallowed.
-const quickBuyPending = new WeakSet<HTMLFormElement>();
-
-const handleQuickBuyClick = (e: React.MouseEvent<HTMLFormElement>) => {
-  if (!isQuickBuyClick(e)) return;
-  const form = e.currentTarget;
-  quickBuyPending.add(form);
-  window.setTimeout(() => quickBuyPending.delete(form), 0);
-};
-
-const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  if (quickBuyPending.delete(e.currentTarget)) return;
-  hapticImpact('medium');
-  const btn = addButton(e.currentTarget);
-  btn?.load?.();
-  // Safety net: the cart events clear it on a real response; this covers a
-  // silent validation bail (`salla.form.onSubmit` returns `false` either way).
-  window.setTimeout(() => btn?.stop?.(), 8000);
-  window.salla?.form.onSubmit('cart.addItem', e);
-};
-
-const handleChange = (e: React.FormEvent<HTMLFormElement>) => {
-  const form = e.currentTarget;
-  // Not reportValidity(): it focuses and scrolls to the first empty required option mid-edit.
-  const isComplete = Array.from(form.elements).every(
-    (el) => !(el as HTMLInputElement).willValidate || (el as HTMLInputElement).validity.valid
-  );
-  if (isComplete) {
-    window.salla?.product?.getPrice(new FormData(form));
-    return;
+  if (type === 'text' || type === 'string') {
+    return <input type="text" name={`options[${opt.id}]`} required={opt.required} placeholder={`أدخل ${opt.name}`} className={baseInput} />;
   }
-  // A new quantity can't be priced yet: show the empty options, like the add-to-cart button.
-  if ((e.target as Element).closest?.('salla-quantity-input')) {
-    void form.querySelector<ProductOptionsElement>('salla-product-options')?.validateAndScroll?.();
+  if (type === 'textarea') {
+    return <textarea name={`options[${opt.id}]`} required={opt.required} rows={2} placeholder={`أدخل ${opt.name}...`} className="w-full min-h-[44px] bg-[#F3F4F6] hover:bg-gray-200/80 focus:bg-white border border-transparent focus:border-[#CCA352] rounded-xl py-2.5 px-4 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none transition-all resize-none box-border" />;
   }
-};
-
-/** Weight line + a link that opens the size-guide modal. Renders nothing for a
- * product with neither. */
-function WeightAndSizeGuideSection({ product }: { product: Product }) {
-  const { t } = useTranslation();
-  if (!product.weight && !product.has_size_guide) return null;
-
-  return (
-    <section>
-      {product.weight && (
-        <div
-          className={`center-between ${product.has_size_guide ? 'pb-5 mb-5 border-b-[1px]' : ''}`}
-        >
-          <b className="form-label rtl:space-x-reverse space-x-1">
-            <i className="sicon-luggage-cart"></i>
-            <span>{t('pages.products.weight')}</span>
-          </b>
-          <span className="product-weight text-sm">{product.weight}</span>
-        </div>
-      )}
-      {product.has_size_guide && (
-        <>
-          <div className="center-between">
-            <b className="form-label rtl:space-x-reverse space-x-1">
-              <i className="sicon-pencil-ruler"></i>
-              <span>{t('pages.products.size_guides')}</span>
-            </b>
-            <SallaButton
-              shape="link"
-              color="primary"
-              className="!p-0 text-sm with-arrow"
-              onClick={() => window.salla?.event?.dispatch('size-guide::open', String(product.id))}
-            >
-              {t('pages.products.show_size_guides')}
-              <i className="sicon-keyboard_arrow_left"></i>
-            </SallaButton>
-          </div>
-          <SallaProductSizeGuide />
-        </>
-      )}
-    </section>
-  );
-}
-
-/** The note / file-upload tabs and their collapse panels. Renders nothing for a
- * product with neither. */
-function AttachmentsSection({
-  product,
-  activeCollapse,
-  onToggle,
-}: {
-  product: Product;
-  activeCollapse: string | null;
-  onToggle: (id: string) => void;
-}) {
-  const { t } = useTranslation();
-  if (!product.can_add_note && !product.can_upload_file) return null;
-
-  const noteId = `note_${product.id}`;
-  const fileId = `file_${product.id}`;
-
-  return (
-    <section>
-      <div className="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start">
-        <div className="form-label">
-          <b className="block">{t('pages.products.attachments')}</b>
-        </div>
-        <div className="mt-1 sm:mt-0 sm:col-span-2 text-end">
-          <div className="flex rtl:space-x-reverse space-x-3">
-            {product.can_add_note && (
-              <button
-                type="button"
-                onClick={() => onToggle(noteId)}
-                className={`btn-tab btn--collapse ${activeCollapse === noteId ? 'is-opened' : 'is-closed'}`}
-              >
-                <i className="font-medium sicon-chat-conversation-alt rtl:ml-1.5 ltr:mr-1.5"></i>
-                <span className="fix-align">{t('pages.products.add_note')}</span>
-              </button>
-            )}
-            {product.can_upload_file && (
-              <button
-                type="button"
-                onClick={() => onToggle(fileId)}
-                className={`btn-tab btn--collapse ${activeCollapse === fileId ? 'is-opened' : 'is-closed'}`}
-              >
-                <i className="font-medium sicon-paperclip rtl:ml-1.5 ltr:mr-1.5"></i>
-                <span className="fix-align">{t('pages.products.add_file')}</span>
-              </button>
-            )}
-          </div>
-
-          {product.can_add_note && (
-            <div
-              className={`collapse-content ${activeCollapse === noteId ? 'is-opened' : 'is-closed'}`}
-            >
-              <div className="pt-4">
-                <textarea
-                  className="animated animatedfadeInDown fadeInDown form-input h-16 bg-gray-50 block"
-                  placeholder={t('pages.products.notes_placeholder')}
-                  name="notes"
-                  cols={30}
-                  rows={10}
-                  defaultValue={product.notes}
-                ></textarea>
-              </div>
-            </div>
-          )}
-
-          {product.can_upload_file && (
-            <div
-              className={`collapse-content ${activeCollapse === fileId ? 'is-opened' : 'is-closed'}`}
-            >
-              <div className="pt-4 px-1">
-                <SallaFileUpload
-                  accept="image/png, image/jpeg, image/jpg, image/gif, video/*, application/pdf"
-                  className="product-option-uploader"
-                >
-                  <div className="product-option-uploader-placholder">
-                    <span className="product-option-uploader-placholder-icon">
-                      <i className="sicon-camera"></i>
-                    </span>
-                    <p className="profile-filepond-placholder-text">
-                      {t('common.uploader.drag_and_drop')}
-                    </p>
-                    <span className="filepond--label-action">{t('common.uploader.browse')}</span>
-                  </div>
-                </SallaFileUpload>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/** Sale / starting-or-normal price, plus the out-of-stock message — the
- * left-hand side of the sticky bar's quantity row. */
-function StickyPriceDisplay({ product, priceBump }: { product: Product; priceBump: number }) {
-  const { t } = useTranslation();
-  // The API converts the amounts but still labels them in the store's own currency.
-  const priceCurrency = getActiveCurrency(product.currency);
-  const priceBumpClass = priceBump ? ' price-bump' : '';
-
-  return (
-    <>
-      <div
-        className={`price-wrapper flex items-center gap-4 whitespace-nowrap ${product.is_out_of_stock ? 'hidden' : ''}`}
-      >
-        <div
-          key={`sale-${priceBump}`}
-          className={`price_is_on_sale${priceBumpClass} space-x-2 rtl:space-x-reverse whitespace-nowrap ${product.is_on_sale ? '' : 'hidden'}`}
-        >
-          <span className="price-bump__now total-price text-red-800 font-bold text-xl inline-block">
-            {product.sale_price} <CurrencySymbol currency={priceCurrency} />
-          </span>
-          <span className="before-price text-gray-500 line-through">
-            {product.regular_price} <CurrencySymbol currency={priceCurrency} />
-          </span>
-        </div>
-        <div
-          key={`plain-${priceBump}`}
-          className={`starting-or-normal-price${priceBumpClass} gap-4 ${product.is_on_sale ? 'hidden' : 'flex'}`}
-        >
-          {product.starting_price && (
-            <span className="starting-price-title">{t('pages.products.starting_price')}</span>
-          )}
-          <span className="price-bump__now total-price font-bold text-xl inline-block">
-            {String(product.starting_price ?? product.price)}{' '}
-            <CurrencySymbol currency={priceCurrency} />
-          </span>
-        </div>
-      </div>
-
-      <div
-        className={`out-of-stock min-h-7 leading-7 text-base text-red-600 !opacity-50 font-bold ${product.is_out_of_stock ? 'scale-pulse' : 'hidden'}`}
-      >
-        {t('pages.products.out_of_stock')}
-      </div>
-    </>
-  );
-}
-
-/** A booking / hidden-quantity product always orders exactly one — post a
- * hidden `1` instead of the stepper. */
-function StickyQuantityField({ product }: { product: Product }) {
-  const { t } = useTranslation();
-  const max = product.max_quantity;
-  // The loaded salla-quantity-input reads `name`/`max` from attributes; the wrapper sets properties.
-  const quantityRef = useCallback(
-    (el: HTMLElement | null) => {
-      if (!el) return;
-      el.setAttribute('name', 'quantity');
-      if (max) el.setAttribute('max', String(max));
-      else el.removeAttribute('max');
-    },
-    [max]
-  );
-
-  if (product.is_hidden_quantity || product.type === 'booking') {
+  if (type === 'date') {
+    return <input type="date" name={`options[${opt.id}]`} required={opt.required} className={baseInput + ' cursor-pointer'} />;
+  }
+  if (type === 'time') {
+    return <input type="time" name={`options[${opt.id}]`} required={opt.required} className={baseInput + ' cursor-pointer'} />;
+  }
+  if (type === 'datetime' || type === 'date-time') {
+    return <input type="datetime-local" name={`options[${opt.id}]`} required={opt.required} className={baseInput + ' cursor-pointer'} />;
+  }
+  if (type === 'color' && values.length > 0) {
     return (
-      <input type="hidden" value="1" name="quantity" aria-label={t('pages.products.quantity')} />
+      <div className="flex flex-wrap gap-2 pt-1">
+        {values.map((val) => {
+          const colorHex = (val as any).color || (val as any).option_value || '#ccc';
+          return (
+            <label key={val.id} className="relative flex items-center justify-center cursor-pointer" title={val.name}>
+              <input type="radio" name={`options[${opt.id}]`} value={val.id} required={opt.required} className="sr-only peer" />
+              <span className="w-7 h-7 rounded-full border border-gray-300 peer-checked:ring-2 peer-checked:ring-offset-2 peer-checked:ring-[#CCA352] transition-all" style={{ backgroundColor: colorHex }} />
+            </label>
+          );
+        })}
+      </div>
     );
   }
-
-  return (
-    <SallaQuantityInput
-      ref={quantityRef}
-      max={product.max_quantity ?? undefined}
-      value={1}
-      name="quantity"
-      aria-label={t('pages.products.quantity')}
-      className="border-gray-200 flex ms-auto"
-    />
-  );
-}
-
-/** Live price + quantity stepper + the add-to-cart button itself. */
-function StickyProductBar({
-  product,
-  stickyAddToCart,
-  priceBump,
-  hasPreorder,
-}: {
-  product: Product;
-  stickyAddToCart?: boolean;
-  priceBump: number;
-  hasPreorder: boolean;
-}) {
-  const { store } = useTwilight();
-  // The storefront API doesn't send `can_quick_buy` for a product, so gating on it
-  // alone never shows the buy-now (+ Apple Pay) widget. Fall back to the store's
-  // quick-purchase setting; the button itself still checks status, product type
-  // and the wallet's availability before it renders anything.
-  const quickBuy = product.can_quick_buy ?? !!store?.settings?.buy_now;
-  // The loaded component copies host attributes (not properties) onto its inner salla-button.
-  const addButtonRef = useCallback((el: HTMLElement | null) => {
-    el?.setAttribute('width', 'wide');
-    el?.setAttribute('type', 'submit');
-  }, []);
-  return (
-    <section className="sticky-product-bar bg-white">
-      {/* Live price on the start side, quantity stepper on the end side
-          (replaces the standalone price section and the "Quantity" label). */}
-      <div className="sticky-product-bar__quantity center-between mb-5">
-        <StickyPriceDisplay product={product} priceBump={priceBump} />
-        <StickyQuantityField product={product} />
+  if ((type === 'image' || type === 'thumbnail') && values.length > 0) {
+    return (
+      <div className="flex flex-wrap gap-2 pt-1">
+        {values.map((val) => {
+          const imgUrl = (val as any).image || (val as any).image_url;
+          return (
+            <label key={val.id} className="relative flex items-center justify-center cursor-pointer" title={val.name}>
+              <input type="radio" name={`options[${opt.id}]`} value={val.id} required={opt.required} className="sr-only peer" />
+              {imgUrl ? (
+                <img src={imgUrl} alt={val.name} className="w-10 h-10 object-cover rounded-lg border border-gray-200 peer-checked:border-[#CCA352] peer-checked:ring-2 peer-checked:ring-[#CCA352] transition-all" />
+              ) : (
+                <span className="px-3 py-1.5 rounded-lg border border-gray-200 peer-checked:border-[#CCA352] peer-checked:bg-[#CCA352]/10 text-xs font-medium">{val.name}</span>
+              )}
+            </label>
+          );
+        })}
       </div>
+    );
+  }
+  if (type === 'radio' && values.length > 0) {
+    return (
+      <div className="flex flex-wrap gap-2 pt-1">
+        {values.map((val) => (
+          <label key={val.id} className="cursor-pointer">
+            <input type="radio" name={`options[${opt.id}]`} value={val.id} required={opt.required} className="sr-only peer" />
+            <span className="inline-block px-3.5 py-2 rounded-lg bg-[#F3F4F6] hover:bg-gray-200/80 peer-checked:bg-[#CCA352] peer-checked:text-white text-xs text-gray-700 font-medium transition-all">{val.name}</span>
+          </label>
+        ))}
+      </div>
+    );
+  }
+  if (type === 'checkbox' && values.length > 0) {
+    return (
+      <div className="flex flex-col gap-1.5 pt-1">
+        {values.map((val) => (
+          <label key={val.id} className="inline-flex items-center gap-2 cursor-pointer text-xs text-gray-700">
+            <input type="checkbox" name={`options[${opt.id}][]`} value={val.id} className="rounded text-[#CCA352] focus:ring-[#CCA352]" />
+            <span>{val.name}</span>
+          </label>
+        ))}
+      </div>
+    );
+  }
+  if (type === 'file') {
+    return <input type="file" name={`options[${opt.id}]`} required={opt.required} className="w-full text-xs text-gray-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#F3F4F6] file:text-gray-700 hover:file:bg-gray-200" />;
+  }
 
-      <SallaAddProductButton
-        ref={addButtonRef}
-        {...(quickBuy ? { quickBuy: true } : {})}
-        {...(stickyAddToCart ? { supportStickyBar: true } : {})}
-        {...(product.is_require_shipping ? { requiredShipping: true } : {})}
-        {...(hasPreorder ? { hasPreOrder: true } : {})}
-        amount={
-          typeof product.base_currency_price === 'object'
-            ? product.base_currency_price.amount
-            : product.base_currency_price
-        }
-        className="mt-5 w-full sticky-product-bar__btn"
-        productStatus={product.status}
-        productType={product.type}
-        productId={product.id}
-        type="submit"
-        width="wide"
-        {...(product.notify_availability
-          ? {
-              ...(product.notify_availability.subscribed ? { isSubscribed: true } : {}),
-              channels: product.notify_availability.channels.join(','),
-              ...(product.notify_availability.subscribed_options
-                ? {
-                    subscribedOptions: JSON.stringify(
-                      product.notify_availability.subscribed_options
-                    ),
-                  }
-                : {}),
-              ...(product.notify_availability.options ? { notifyOptionsAvailability: true } : {}),
-            }
-          : {})}
+  // Default: select / dropdown
+  return (
+    <div className="relative w-full">
+      <select
+        name={`options[${opt.id}]`}
+        defaultValue=""
+        required={opt.required}
+        className="w-full h-11 appearance-none bg-[#F3F4F6] hover:bg-gray-200/80 focus:bg-white border border-transparent focus:border-[#CCA352] rounded-xl ps-4 pe-10 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none transition-all cursor-pointer box-border"
       >
-        {product.add_to_cart_label}
-      </SallaAddProductButton>
-    </section>
+        <option value="" disabled>اختر</option>
+        {values.map((val) => {
+          const extraPrice = (val as any).additional_price ?? (val as any).price;
+          return (
+            <option key={val.id} value={val.id}>
+              {val.name}{extraPrice ? ` (+${extraPrice} ${priceCurrency})` : ''}
+            </option>
+          );
+        })}
+      </select>
+      <div className="pointer-events-none absolute inset-y-0 end-0 flex items-center pe-3.5 text-gray-400">
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </div>
+    </div>
   );
 }
 
-/**
- * Theme fork of the engine `AddToCartForm`.
- *
- * Differs from the engine version: the form is a `flex flex-col gap-8` column and its
- * section blocks (weight / size-guide, attachments, price, quantity) render flat:
- * no `bg-white` card padding, no `rounded`, no per-block `mb`. The sticky
- * add-to-cart bar keeps `bg-white` for its mobile fixed-position backdrop.
- * Upgrade notes: `FORKS.md`.
- */
 export function AddToCartForm({
   product,
-  stickyAddToCart,
-  giftingIntro,
+  initialProduct,
   formStartSlot,
   formEndSlot,
 }: AddToCartFormProps) {
-  const [activeCollapse, setActiveCollapse] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
-  // Replays the little pulse whenever the figures change (quantity / options).
-  const priceBump = usePriceBump(
-    product.sale_price,
-    product.price,
-    product.regular_price,
-    product.starting_price
-  );
+  const [quantity, setQuantity] = useState(1);
+  const priceCurrency = getActiveCurrency(product.currency);
+  const { theme } = useTwilight();
+  const settings = (theme?.settings || {}) as Record<string, any>;
 
-  // Stop the add-to-cart spinner once the cart request resolves (either way).
-  // Unsubscribe through the same `cart` reference `on*` used — `off*` finds the
-  // wrapper `on*` registered by identity, so re-reading `window.salla.cart.event`
-  // fresh in the cleanup wouldn't reliably remove it. Without this, navigating
-  // product to product (this component remounts per product) left every prior
-  // product's listeners still firing.
+  // Traffic compliance text — shown only on automotive tint products, customizable in theme settings
+  const trafficTitle =
+    (settings.product_traffic_compliance_title as string) || 'التوافق مع إرشادات المرور';
+  const trafficText =
+    (settings.product_traffic_compliance_text as string) ||
+    'هذا المنتج متوافق مع إرشادات المرور السعودي، يرجى مراجعة أنظمة المرور المحلية قبل الاستخدام.';
+
+  const getCombinedSpecs = () => {
+    const s1 = getProductCustomFields(product);
+    if (s1.length > 0) return s1;
+    if (initialProduct) {
+      const s2 = getProductCustomFields(initialProduct);
+      if (s2.length > 0) return s2;
+    }
+    return [];
+  };
+
+  // KPI specs (first 3 only — shown inside the buy box as UVR/IRR/TSER row)
+  const [specs, setSpecs] = useState<CustomFieldItem[]>(getCombinedSpecs);
+
   useEffect(() => {
-    const stop = () => addButton(formRef.current)?.stop?.();
-    const cart = window.salla?.cart?.event;
-    cart?.onItemAdded?.(stop);
-    cart?.onItemAddedFailed?.(stop);
-    return () => {
-      cart?.offItemAdded?.(stop);
-      cart?.offItemAddedFailed?.(stop);
+    const current = getCombinedSpecs();
+    if (current.length > 0) {
+      setSpecs(current);
+      return;
+    }
+
+    let isMounted = true;
+    const fetchMetadata = async () => {
+      try {
+        const salla = (window as any).salla || (window as any).Salla;
+        if (!salla?.api?.metadata?.fetchValues) return;
+        const res = await salla.api.metadata.fetchValues('product', product.id);
+        const data = res?.data;
+        const rawSections = Array.isArray(data)
+          ? (data[0]?.sections || data)
+          : (data?.sections || res?.sections || []);
+        const fetched: CustomFieldItem[] = [];
+        for (const sec of rawSections) {
+          const fields = Array.isArray(sec?.fields) ? sec.fields : Array.isArray(sec?.items) ? sec.items : [];
+          for (const f of fields) {
+            const label = f.name || f.label || f.title || f.key;
+            const value = f.value || f.val;
+            if (label && value != null) fetched.push({ label: String(label).trim(), value: String(value).trim() });
+          }
+        }
+        if (isMounted && fetched.length > 0) setSpecs(fetched);
+      } catch { /* silent */ }
     };
-  }, []);
+    fetchMetadata();
+    return () => { isMounted = false; };
+  }, [product.id, product, initialProduct]);
 
-  // stable ref: an inline arrow re-runs on every render and resets the user's selection
-  const optionsRef = useCallback(
-    (el: { setOptionsData?: (data: never[]) => void } | null) =>
-      void el?.setOptionsData?.(product.options as never[]),
-    [product.options]
-  );
+  const handleQuantityChange = (newQty: number) => {
+    setQuantity(newQty);
+    const form = formRef.current;
+    if (!form) return;
+    const optionsEl = form.querySelector('salla-product-options') as any;
+    if (optionsEl?.validateAndScroll) {
+      optionsEl.validateAndScroll().then((valid: boolean) => {
+        if (valid && window.salla?.product?.getPrice) window.salla.product.getPrice(new FormData(form));
+      });
+      return;
+    }
+    const isComplete = Array.from(form.elements).every((el: any) => !el.willValidate || el.validity.valid);
+    if (isComplete && window.salla?.product?.getPrice) window.salla.product.getPrice(new FormData(form));
+  };
 
-  // salla-product-options reads its `options` prop only in its constructor (no
-  // @Watch), and on first load that constructor runs before sdk.init has set
-  // page.id — so its getDetails(page.id) fallback fetches nothing and the options
-  // never reflect. Seed page.id (=== product.id) and wait for the SDK to be ready
-  // before mounting the element so its fallback resolves on first load too.
-  const [optionsReady, setOptionsReady] = useState(false);
-  useEffect(() => {
-    const salla = window.salla;
-    if (!salla) return;
-    let alive = true;
-    salla.config?.set?.('page.id', product.id);
-    Promise.resolve(salla.onReady?.()).finally(() => {
-      if (alive) setOptionsReady(true);
-    });
-    return () => {
-      alive = false;
-    };
-  }, [product.id]);
+  const handleFormChange = (e: React.FormEvent<HTMLFormElement>) => {
+    const form = e.currentTarget;
+    const target = (e.target || (e.nativeEvent as any)?.target) as HTMLInputElement | null;
+    const name = target?.getAttribute?.('name') || (target as any)?.name;
+    if (name === 'qty-stepper' || target?.closest?.('salla-quantity-input')) {
+      const optionsEl = form.querySelector('salla-product-options') as any;
+      if (typeof optionsEl?.validateAndScroll === 'function') { optionsEl.validateAndScroll(); return; }
+    }
+    const isComplete = Array.from(form.elements).every((el: any) => !el.willValidate || el.validity.valid);
+    if (isComplete && window.salla?.product?.getPrice) window.salla.product.getPrice(new FormData(form));
+  };
 
-  const handleCollapseToggle = useCallback((id: string) => {
-    setActiveCollapse((current) => (current === id ? null : id));
-  }, []);
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const form = formRef.current;
+    if (!form) return;
+    hapticImpact('medium');
+    form.requestSubmit();
+    setTimeout(() => { window.location.href = '/checkout'; }, 600);
+  };
 
-  const hasPreorder = Boolean(product.has_preorder_campaign && product.preorder);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    hapticImpact('medium');
+    window.salla?.form?.onSubmit?.('cart.addItem', e);
+  };
+
+  // Show at most 3 key specs in the KPI row inside the buy box
+  const kpiSpecs = specs.slice(0, 3);
 
   return (
     <form
       ref={formRef}
-      className="form product-form mt-6 flex flex-col gap-8"
+      className="form product-form flex flex-col gap-3.5 text-start"
       encType="multipart/form-data"
       method="post"
-      onClickCapture={handleQuickBuyClick}
       onSubmit={handleSubmit}
-      onChange={handleChange}
+      onChange={handleFormChange}
     >
       <input type="hidden" name="id" value={product.id} />
-
+      <input type="hidden" name="quantity" value={quantity} />
       {formStartSlot}
 
-      {optionsReady && product.options && product.options.length > 0 && (
-        <SallaProductOptions
-          key={product.id}
-          // constructor-only options parse: push data via ref on client remount
-          ref={optionsRef}
-          options={JSON.stringify(product.options)}
-          productId={product.id}
-        />
+      {/* KPI Specs Row (UVR / IRR / TSER) — shown only when backend provides them */}
+      {kpiSpecs.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-5 mb-1 shadow-sm">
+          <div
+            className={`grid gap-2 text-center ${
+              kpiSpecs.length === 1 ? 'grid-cols-1' : kpiSpecs.length === 2 ? 'grid-cols-2' : 'grid-cols-3'
+            } divide-x divide-x-reverse divide-gray-100`}
+          >
+            {kpiSpecs.map((spec, i) => (
+              <div key={i} className="px-1">
+                <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-1">{spec.label}</div>
+                <div className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">{spec.value}</div>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
-      {product.has_bundle_products && (
-        <SallaMultipleBundleProduct bundleSections={JSON.stringify(product)} />
+      {/* Product Options Grid — type-aware rendering per Salla backend */}
+      {product.options && product.options.length > 0 && (
+        <div className="product-options-grid">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {product.options.map((opt) => {
+              const optType = (opt.type || '').toLowerCase();
+              const isWide = ['textarea', 'file'].includes(optType);
+              return (
+                <div key={opt.id} className={`flex flex-col ${isWide ? 'sm:col-span-2' : 'col-span-1'}`}>
+                  <label className="text-xs font-bold text-gray-900 mb-1 flex items-center gap-0.5">
+                    <span>{opt.name}</span>
+                    {opt.required && <span className="text-red-500 font-bold">*</span>}
+                  </label>
+                  {renderProductOptionField(opt, priceCurrency)}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       )}
-
-      <WeightAndSizeGuideSection product={product} />
-
-      <AttachmentsSection
-        product={product}
-        activeCollapse={activeCollapse}
-        onToggle={handleCollapseToggle}
-      />
 
       {formEndSlot}
 
-      {hasPreorder ? (
-        <section className="mt-5">
-          <SallaCountDown preOrder={JSON.stringify(product.preorder)} boxed labeled />
-        </section>
-      ) : null}
+      {/* Action Row: [أضف للسلة] [اشتر الآن] [-1+] */}
+      <div className="flex items-center gap-3 mt-2">
+        <button
+          type="submit"
+          disabled={product.is_out_of_stock}
+          className="flex-1 h-12 rounded-lg bg-[#CCA352] hover:bg-[#b89143] active:bg-[#a68037] text-[#1a1a1a] font-bold text-sm transition-all shadow-sm text-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
+        >
+          {product.add_to_cart_label || 'أضف للسلة'}
+        </button>
 
-      <StickyProductBar
-        product={product}
-        stickyAddToCart={stickyAddToCart}
-        priceBump={priceBump}
-        hasPreorder={hasPreorder}
-      />
+        <button
+          type="button"
+          disabled={product.is_out_of_stock}
+          onClick={handleBuyNow}
+          className="flex-1 h-12 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 text-gray-900 font-bold text-sm transition-all shadow-sm text-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
+        >
+          اشتر الآن
+        </button>
 
-      {product.giftable && (
-        <SallaGifting
-          className="mt-5"
-          widgetSubtitle={giftingIntro}
-          productId={product.id}
-          {...(product.is_require_shipping ? { physicalProducts: true } : {})}
+        {!product.is_hidden_quantity && product.type !== 'booking' && (
+          <div className="w-32 h-12 bg-[#F9FAFB] border border-gray-200 rounded-lg flex items-center justify-between px-2 shrink-0">
+            <button
+              type="button"
+              onClick={() => handleQuantityChange(Math.max(1, quantity - 1))}
+              className="w-8 h-8 rounded-md bg-[#E5E7EB] hover:bg-gray-300 text-gray-600 font-bold flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Decrease quantity"
+            >
+              −
+            </button>
+            <span className="font-bold text-gray-900 text-sm select-none">{quantity}</span>
+            <button
+              type="button"
+              onClick={() => handleQuantityChange(quantity + 1)}
+              className="w-8 h-8 rounded-md bg-[#262626] hover:bg-black text-white font-bold flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Increase quantity"
+            >
+              +
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Hidden Salla web-component hosts for SDK compatibility */}
+      <salla-add-product-button style={{ display: 'none' }} width="wide" type="submit" product-id={product.id} />
+      {!product.is_hidden_quantity && product.type !== 'booking' && (
+        <salla-quantity-input
+          style={{ display: 'none' }}
+          name="quantity"
+          {...(product.max_quantity != null ? { max: product.max_quantity } : {})}
         />
       )}
-    </form>
+
+      {/* Traffic Compliance Advisory — shown only for automotive tint / film products */}
+      {isAutomotiveTintProduct(product) && trafficTitle && (
+        <div className="bg-[#EFF6FF] border border-[#BFDBFE] rounded-xl p-4 text-start">
+          <div className="flex items-center gap-2 font-bold text-[#2563EB] text-xs sm:text-sm mb-1">
+            <svg className="w-4 h-4 shrink-0" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+            </svg>
+            <span>{trafficTitle}</span>
+          </div>
+          {trafficText && (
+            <p className="text-[#3B82F6] text-xs leading-relaxed">{trafficText}</p>
+          )}
+        </div>
+      )}    </form>
   );
 }
