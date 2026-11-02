@@ -38,8 +38,8 @@ vi.mock('@salla.sa/twilight-components-react', () => ({
   ProductsListSkeleton: () => <div data-testid="list-skeleton" />,
 }));
 
-vi.mock('../../../app/components/product', () => ({
-  ProductCard: ({ product }: { product: { id?: number; name?: string } }) => (
+vi.mock('../../../app/components/shared/cards/ProductCardItem', () => ({
+  ProductCardItem: ({ product }: { product: { id?: number; name?: string } }) => (
     <div data-testid="product-card">{product.name}</div>
   ),
 }));

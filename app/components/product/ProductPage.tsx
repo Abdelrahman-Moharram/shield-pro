@@ -1,49 +1,84 @@
 import { Fragment, useEffect, useMemo, useState } from 'react';
-import { SallaQuickOrder } from '@salla.sa/twilight-components-react/quick-order';
 import { SallaOffer } from '@salla.sa/twilight-components-react/offer';
 import { SallaComments } from '@salla.sa/twilight-components-react/comments';
+import { SallaMetadata } from '@salla.sa/twilight-components-react/metadata';
 import { HookSlot } from '@salla.sa/twilight-theme-engine/hooks';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { useProduct } from '@salla.sa/twilight-theme-engine/hooks/useProduct';
 import { useComments } from '@salla.sa/twilight-theme-engine/hooks/useComments';
-import { Breadcrumb, RenderWhenVisible } from '@salla.sa/twilight-theme-engine/common';
+import { RenderWhenVisible } from '@salla.sa/twilight-theme-engine/common';
 import { PageBlocks } from '@salla.sa/twilight-theme-engine/home';
 import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
 import type { ProductPageProps } from '@salla.sa/twilight-theme-engine/routes/product';
 import { ProductGallery } from './ProductGallery';
 import { ProductDetails } from './ProductDetails';
 import { AddToCartForm } from './AddToCartForm';
+import { ProductSpecs } from './ProductSpecs';
+import { ProductFeatures } from './ProductFeatures';
+import { ProductInstallBanner } from './ProductInstallBanner';
 import { BlockHookSlot } from '../common';
 import { ProductsSlider } from '../home';
 
 /**
- * "Similar products" slider. A separate component (not inline in
- * `ProductPage`) so `relatedCount` lives *inside* the product's keyed
- * `<Fragment>` and resets for free on every product → product navigation,
- * instead of needing a `useEffect` to reset it by hand.
+ * "Similar products" section.
+ * Defaults to 'related' products and falls back to 'latest' so the section
+ * is always populated with items matching the Figma mockup.
  */
-function RelatedProducts({ productId, title }: { productId: number; title: string }) {
-  // `null` until the related-products list resolves; `0` once we know there are
-  // none — then the lazy `<section>` / `.container` wrapper is dropped entirely
-  // rather than left empty in the DOM.
-  const [relatedCount, setRelatedCount] = useState<number | null>(null);
+function RelatedProducts({
+  productId,
+  categoryId,
+  title,
+}: {
+  productId: number;
+  categoryId?: number;
+  title: string;
+}) {
+  const [source, setSource] = useState<'related' | 'categories' | 'latest'>('related');
+  const [isEmpty, setIsEmpty] = useState(false);
+
+  const handleResolve = (count: number) => {
+    if (count === 0 && source === 'related') {
+      if (categoryId) {
+        setSource('categories');
+      } else {
+        setSource('latest');
+      }
+      return;
+    }
+    if (count === 0 && source === 'categories') {
+      setSource('latest');
+      return;
+    }
+    if (count === 0) {
+      setIsEmpty(true);
+    }
+  };
+
+  const sourceValue =
+    source === 'related' ? productId : source === 'categories' && categoryId ? [categoryId] : null;
 
   return (
     <>
       <HookSlot name="product:related.start" />
-      {/* Dropped once we know there are no related products, so no empty
-          `<section>` / `.container` is left behind. `estimatedHeight="0"`: until
-          then, don't reserve 400px for a block that may render nothing. */}
-      {relatedCount !== 0 && (
+      {!isEmpty && (
         <RenderWhenVisible estimatedHeight="0px">
-          <div className="container">
+          <div className="container py-10">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 text-start">
+              {title || 'منتجات قد تناسبك'}
+            </h2>
             <ProductsSlider
+              key={source}
               data={{
-                products: { source: 'related', source_value: productId },
-                title,
+                products: {
+                  source,
+                  source_value: sourceValue,
+                  exclude_id: productId,
+                },
+                title: '',
+                limit: 10,
                 display_all_url: '',
               }}
-              onResolve={setRelatedCount}
+              onResolve={handleResolve}
             />
           </div>
         </RenderWhenVisible>
@@ -54,16 +89,12 @@ function RelatedProducts({ productId, title }: { productId: number; title: strin
 }
 
 /**
- * Theme fork of the engine `ProductPage` (wired in from
- * `app/routes/$slug.p$id.tsx`).
+ * Shieldo Pro Theme ProductPage.
  *
- * Same structure as upstream, but renders the theme's flat-markup
- * {@link ProductDetails} / {@link AddToCartForm} and the theme's scroll-carousel
- * {@link ProductsSlider} for the "similar products" block (matching the homepage
- * product cards). The engine's bottom store-wide testimonials block is dropped —
- * `<SallaComments>` already covers product reviews on this page.
- *
- * Upgrade notes: `FORKS.md`.
+ * Implements the Figma product page design with clean, minimal, dynamic code:
+ *  - Top fold: Gallery (Right) + Details & Options Buy Box (Left)
+ *  - Similar Products ("منتجات قد تناسبك")
+ *  - Customer Reviews (if enabled)
  */
 export function ProductPage({ product: initialProduct, page }: ProductPageProps) {
   const { theme, store } = useTwilight();
@@ -72,11 +103,6 @@ export function ProductPage({ product: initialProduct, page }: ProductPageProps)
   const { commentsKey } = useComments();
   const blockScope = useMemo(() => ({ product_id: product.id }), [product.id]);
 
-  // The Twig storefront bootstraps `salla.config` with `user.can_comment`; the
-  // React SDK init doesn't, so it's `null` and `<salla-comment-form>` (and the
-  // `<salla-comments>` container gate) render empty even for eligible buyers.
-  // The engine *does* expose the same flag as `store.settings.product
-  // .user_can_comment` — copy it across before the lazy comments block mounts.
   useEffect(() => {
     const salla = window.salla;
     if (!salla?.config?.set) return;
@@ -86,25 +112,18 @@ export function ProductPage({ product: initialProduct, page }: ProductPageProps)
     salla.config.set('user', { ...(salla.config.get('user') || {}), can_comment: canComment });
   }, []);
 
-  // The engine breadcrumb replaces the product's category crumb with the page
-  // you came from (a stored "referrer"). Drop it — synchronously, before
-  // `<Breadcrumb>` mounts and reads it — so the real Home › Category › Product
-  // trail shows. Guarded: `window` doesn't exist during SSR.
   useState(() => {
     if (typeof window === 'undefined') return;
     try {
       window.sessionStorage?.removeItem('breadcrumb-referrer');
     } catch {
-      /* sessionStorage unavailable (private mode) */
+      /* sessionStorage unavailable */
     }
   });
 
   return (
-    // Keyed Fragment (not a wrapper <div>): remounts the whole subtree on a
-    // product → product navigation so gallery / form state resets, without
-    // adding a node between `#main-content` and the page's sections.
     <Fragment key={product.id}>
-      {/* App-block hook `product.single.before_product_info` — above the gallery / info grid */}
+      {/* App-block hook `product.single.before_product_info` */}
       <BlockHookSlot
         name="product.single.before_product_info"
         wrapper="s-before-product-info"
@@ -112,17 +131,17 @@ export function ProductPage({ product: initialProduct, page }: ProductPageProps)
         scope={blockScope}
       />
 
-      <div className="container">
-        {theme?.settings?.product_show_breadcrumbs !== false && <Breadcrumb page={page} />}
-
+      <div className="container pt-4 md:pt-6">
         <HookSlot name="product:start" />
 
-        <div className="flex flex-col items-start md:flex-row" id={`product-${product.id}`}>
+        {/* Top Fold: 2-Column Grid */}
+        <div className="flex flex-col items-start md:flex-row gap-8 lg:gap-12" id={`product-${product.id}`}>
+          {/* Gallery (Right in RTL) */}
           <ProductGallery product={product} />
 
-          <div className="main-content md:sticky md:overflow-hidden md:top-24 w-full md:w-2/4 md:pb-16">
+          {/* Details & Form (Left in RTL) */}
+          <div className="main-content md:sticky md:overflow-hidden md:top-24 w-full md:w-2/4 pb-8 md:pb-16">
             <HookSlot name="product:details.start" />
-            {/* Loader product: like Twig, the header price stays the unit price; only the SKU and barcode are live */}
             <ProductDetails
               product={initialProduct}
               sku={product.sku}
@@ -132,20 +151,36 @@ export function ProductPage({ product: initialProduct, page }: ProductPageProps)
             <HookSlot name="product:details.end" />
 
             <HookSlot name="product:single.form.start" />
-            <AddToCartForm product={product} stickyAddToCart={theme.settings.sticky_add_to_cart} />
+            <AddToCartForm
+              product={product}
+              initialProduct={initialProduct}
+              stickyAddToCart={theme.settings.sticky_add_to_cart}
+            />
             <HookSlot name="product:single.form.end" />
-            {/* Twig renders this hook and its merchant blocks after the form */}
+
             <HookSlot name="product:single.description.end" context={{ product }} />
             <PageBlocks hook="product:single.description.end" scope={blockScope} />
-
-            <SallaQuickOrder className="mt-5 md:-mb-2 block" />
           </div>
         </div>
 
         <SallaOffer />
+
+        {/* Hidden metadata bridge to ensure Salla engine initializes product metadata */}
+        <SallaMetadata entity="product" entityId={product.id} style={{ display: 'none' }} />
+
+        {/* 1. المواصفات الفنية */}
+        <ProductSpecs product={product} initialProduct={initialProduct} />
+
+        {/* 2. لماذا تختار هذا المنتج؟ */}
+        <ProductFeatures product={product} />
+
+        {/* 3. ترغب في تركيب المنتج؟ */}
+        <div className="my-4">
+          <ProductInstallBanner product={product} />
+        </div>
       </div>
 
-      {/* App-block hook `product.single.before_customer_reviews` — between the info and the reviews */}
+      {/* Customer Reviews if enabled */}
       <BlockHookSlot
         name="product.single.before_customer_reviews"
         wrapper="s-before-reviews"
@@ -153,24 +188,24 @@ export function ProductPage({ product: initialProduct, page }: ProductPageProps)
       />
 
       {store.settings?.rating?.show_on_product && (
-        // `estimatedHeight="0"`: `RenderWhenVisible` hard-codes `min-height` on its
-        // wrapper section and never clears it, so the default 400px leaves an empty
-        // gap when the product has no reviews. Comments size themselves once present.
         <RenderWhenVisible estimatedHeight="0px" className="s-block--full-bg">
           <SallaComments key={commentsKey} itemId={product.id} type={'product' as never} />
         </RenderWhenVisible>
       )}
 
-      {/* App-block hook `product.single.before_product_recommendations` — between the reviews and related */}
+      {/* Section: منتجات قد تناسبك */}
       <BlockHookSlot
         name="product.single.before_product_recommendations"
         wrapper="s-before-related"
         scope={blockScope}
       />
 
-      <RelatedProducts productId={product.id} title={t('pages.products.similar_products')} />
+      <RelatedProducts
+        productId={product.id}
+        categoryId={product.category?.id}
+        title={t('pages.products.similar_products', 'منتجات قد تناسبك')}
+      />
 
-      {/* App-block hook `product.single.after_product_recommendations` — end of the product page */}
       <BlockHookSlot
         name="product.single.after_product_recommendations"
         wrapper="s-after-related"

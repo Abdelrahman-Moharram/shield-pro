@@ -92,3 +92,15 @@ vi.mock('@salla.sa/twilight-components-react', () => ({
     );
   },
 }));
+
+vi.mock('@salla.sa/twilight-theme-engine/common', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@salla.sa/twilight-theme-engine/common')>();
+  return {
+    ...actual,
+    Link: ({ to, href, children, ...props }: any) => (
+      <a href={to || href} {...props}>
+        {children}
+      </a>
+    ),
+  };
+});

@@ -10,7 +10,6 @@ import type { Product, ProductImage } from '@salla.sa/twilight-theme-engine/type
 import { ArrowRightIcon } from '../icons';
 import { useHydrated } from '../../hooks/useHydrated';
 import { useMobileViewport } from '../../hooks/useMobileViewport';
-import { ProductMetadata } from './ProductMetadata';
 
 export interface ProductGalleryProps {
   product: Product;
@@ -164,7 +163,7 @@ export function ProductGallery({ product }: ProductGalleryProps) {
       <SallaSlider
         ref={sliderRef}
         id={sliderId}
-        className="details-slider rounded image-slider"
+        className="details-slider rounded-2xl image-slider overflow-hidden border border-gray-100 shadow-xs"
         type="thumbs"
         pagination
         loop={false}
@@ -172,7 +171,7 @@ export function ProductGallery({ product }: ProductGalleryProps) {
         listenToThumbnailsOption
         showThumbsControls={false}
         sliderConfig={{ watchOverflow: true, autoHeight: true }}
-        thumbsConfig={{ slidesPerView: 'auto', spaceBetween: 8 }}
+        thumbsConfig={{ slidesPerView: 'auto', spaceBetween: 10 }}
         onAfterInit={() => {
           setSliderReady(true);
           hidePoster();
@@ -236,18 +235,6 @@ export function ProductGallery({ product }: ProductGalleryProps) {
         </div>
       )}
 
-      {/* Product metadata / specs — on `md`+ it renders here, below the slider.
-          On mobile it moves to the end of the description in `ProductDetails`.
-          Both copies render until hydration completes (matches the pre-hydration
-          CSS-hidden state exactly, so no SSR/first-paint mismatch) — once
-          `hydrated`, only the copy the current viewport actually shows stays
-          mounted, so a `has_metadata` product doesn't run two full
-          `<SallaMetadata>` instances (each its own async spec fetch, its own
-          MutationObserver, its own click listener) for the rest of the page's
-          life on every load. */}
-      {product.has_metadata && (!hydrated || !isMobile) && (
-        <ProductMetadata className="mt-8 hidden md:block" />
-      )}
     </div>
   );
 }
@@ -365,7 +352,7 @@ function ThumbSlide({ image, index }: { image: ProductImage; index: number }) {
       <Image
         src={image.url}
         alt={image.alt || ''}
-        className="object-cover w-full h-full bg-gray-100 rounded overflow-hidden"
+        className="object-cover w-full h-full bg-gray-100 rounded-xl overflow-hidden border border-gray-200 transition-all hover:border-[#CCA352]"
         title={image.alt}
         priority={index < 5}
         noWrapper

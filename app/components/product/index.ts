@@ -5,3 +5,6 @@ export { ProductPage } from './ProductPage';
 export { ProductDetails } from './ProductDetails';
 export { AddToCartForm } from './AddToCartForm';
 export { ProductCard } from './ProductCard';
+export { ProductSpecs } from './ProductSpecs';
+export { ProductFeatures } from './ProductFeatures';
+export { ProductInstallBanner } from './ProductInstallBanner';

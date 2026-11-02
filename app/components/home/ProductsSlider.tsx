@@ -5,12 +5,16 @@ import { product, type ProductsListSource } from '@salla.sa/twilight-theme-engin
 import { Link } from '@salla.sa/twilight-theme-engine/common';
 import { ProductsListSkeleton } from '@salla.sa/twilight-components-react';
 import { ScrollCarousel } from '../common';
-import { ProductCard } from '../product';
+import { ProductCardItem } from '../shared/cards/ProductCardItem';
 import { blockLimit } from '../../lib/blockLimit';
 
 export interface ProductsSliderProps {
   data: {
-    products?: { source?: ProductsListSource; source_value?: number | number[] | null };
+    products?: {
+      source?: ProductsListSource;
+      source_value?: number | number[] | null;
+      exclude_id?: number | string | null;
+    };
     title?: string;
     /** How many products the merchant chose to show; all the API returns when unset. */
     limit?: number | string;
@@ -54,7 +58,13 @@ export function ProductsSlider({ data, onResolve }: ProductsSliderProps) {
     enabled: !!source,
   });
   // Some sources return a full page whatever `perPage` asks for.
-  const items = result?.items?.slice(0, limit);
+  // Exclude the currently viewed product if exclude_id is provided
+  const excludeId = data.products?.exclude_id;
+  const rawItems = result?.items ?? [];
+  const filteredItems = excludeId != null
+    ? rawItems.filter((item) => String(item.id) !== String(excludeId))
+    : rawItems;
+  const items = filteredItems.slice(0, limit);
 
   // Keep `onResolve` out of this effect's deps — an inline callback would
   // otherwise re-fire on every parent render.
@@ -113,7 +123,7 @@ export function ProductsSlider({ data, onResolve }: ProductsSliderProps) {
         >
           {(items ?? []).map((item) => (
             <div key={item.id} className="s-products-carousel__slide">
-              <ProductCard product={item} />
+              <ProductCardItem product={item} />
             </div>
           ))}
         </ScrollCarousel>
