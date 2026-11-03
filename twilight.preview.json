@@ -19,7 +19,21 @@
     "sticky_add_to_cart": true,
     "show_tags": true,
     "slider_background_size": "contain",
-    "imageZoom": false
+    "imageZoom": false,
+    "product_install_banner_url": "/branches",
+    "installation_centers": [
+      {
+        "name": "مركز شيلدو برو - فرع خريص",
+        "city": "الرياض",
+        "district": "حي الروضة",
+        "address": "طريق خريص الفرعي - بجوار محطة الدريس",
+        "phone": "0112345678",
+        "whatsapp": "966501234567",
+        "mapUrl": "https://maps.app.goo.gl",
+        "hours": "السبت - الخميس: 9:00 ص - 10:30 م",
+        "services": "عزل حراري نانو سيراميك، حماية PPF، نانو سيراميك"
+      }
+    ]
   },
   "layout": [
     {

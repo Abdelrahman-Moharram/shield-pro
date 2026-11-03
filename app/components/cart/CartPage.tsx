@@ -12,13 +12,15 @@ import { loyalty } from '@salla.sa/twilight-theme-engine/api/loyalty';
 import { cart } from '@salla.sa/twilight-theme-engine/api/cart';
 import type { CartPageProps } from '@salla.sa/twilight-theme-engine/routes/cart';
 import { CartItem } from './CartItem';
+import { RelatedProducts } from '../product/ProductPage';
+import { ProductInstallBanner } from '../product/ProductInstallBanner';
 
 /**
  * Theme fork of the engine `CartPage`.
  *
- * Same data flow as upstream, plus a column-heading row above the items
- * (Products (N) · Quantity · Total) so the flat {@link CartItem} rows read as a
- * table. Upgrade notes: `FORKS.md`.
+ * Same data flow as upstream, plus a visible page title, related products
+ * (seeded from the first cart item) and the install banner below the cart.
+ * Upgrade notes: `FORKS.md`.
  */
 function CartPageContent({ page }: CartPageProps) {
   const { store } = useTwilight();
@@ -76,12 +78,15 @@ function CartPageContent({ page }: CartPageProps) {
   }
 
   return (
+    <>
     <div className="container">
       {/* Analytics — no visible UI, fires GTM checkout events */}
       <SeoCartWidget cart={cartData} />
 
       <Breadcrumb page={page} />
-      <h1 className="sr-only">{t('common.titles.cart', 'Cart')}</h1>
+      <h1 className="text-2xl font-bold text-gray-900 mb-6 text-start">
+        {t('pages.cart.title', 'Shopping Cart')}
+      </h1>
       <SallaConditionalOffer />
 
       <HookSlot name="cart:start" />
@@ -89,19 +94,6 @@ function CartPageContent({ page }: CartPageProps) {
       <div className="pt-5 flex flex-col items-start lg:flex-row pb-6 lg:pb-20">
         <div className="main-content w-full lg:w-[calc(100%-384px)]">
           <HookSlot name="cart:items.start" context={{ cartItems: cartData.items }} />
-
-          <div className="cart-titles hidden md:flex rtl:space-x-reverse md:space-x-12 items-center border-b border-gray-200 pb-4 text-sm font-bold text-gray-900 mb-5">
-            <span className="flex-1">
-              {t('blocks.cart.products', 'Products')} ({cartData.items.length})
-            </span>
-            <span className="flex gap-6 md:gap-8">
-              <span className="w-[120px] text-center">
-                {t('pages.products.quantity', 'Quantity')}
-              </span>
-              <span>{t('blocks.cart.item_total', 'Total')}</span>
-              <span className="w-5" aria-hidden="true"></span>
-            </span>
-          </div>
 
           {cartData.items.map((item, index) => (
             <CartItem key={item.id} item={item} isFirst={index === 0} onMutated={refetchCart} />
@@ -148,6 +140,15 @@ function CartPageContent({ page }: CartPageProps) {
 
       <HookSlot name="cart:end" />
     </div>
+
+    <RelatedProducts
+      productId={cartData.items[0].product_id}
+      title={t('pages.cart.related_products', 'Related products')}
+    />
+    <div className="container">
+      <ProductInstallBanner />
+    </div>
+    </>
   );
 }
 

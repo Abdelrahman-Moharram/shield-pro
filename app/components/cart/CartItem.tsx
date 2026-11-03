@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { product } from '@salla.sa/twilight-theme-engine/api/product';
 import type { Money, CartItem as CartItemType } from '@salla.sa/twilight-theme-engine/types';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { useMoney } from '@salla.sa/twilight-theme-engine/hooks/useMoney';
@@ -17,10 +19,10 @@ interface CartItemProps {
  * Theme fork of the engine `CartItem`.
  *
  * Differences from upstream:
- *  - flat row (border-separated) instead of a padded `bg-white` card;
- *  - the "Total:" label is dropped (the cart-page column heading covers it);
- *  - the delete control is a plain trash icon at the row end, not a red icon
- *    button in the corner.
+ *  - a bordered theme-surface card per row (cream page, white card);
+ *  - the "Total:" label shows on mobile only, larger on desktop;
+ *  - the delete control is a plain trash icon pinned to the card corner;
+ *  - the quantity stepper uses dark square buttons (see `cart.scss`).
  * Upgrade notes: `FORKS.md`.
  */
 function toNumber(value: number | Money | undefined): number | undefined {
@@ -134,6 +136,9 @@ function CartQuantity({
 function CartItemInfo({ item }: { item: CartItemType }) {
   const { t } = useTranslation();
   const { format } = useMoney();
+  // The cart line carries no category, so read it from the (cached) product details.
+  const { data: details } = useQuery(product.queries.detail(String(item.product_id)));
+  const category = details?.category?.name;
 
   return (
     <div className="space-y-1">
@@ -142,6 +147,12 @@ function CartItemInfo({ item }: { item: CartItemType }) {
           {item.product_name}
         </Link>
       </div>
+
+      {category && (
+        <span className="inline-flex rounded-full bg-[#F3F4F6] px-2.5 py-0.5 text-xs font-semibold text-gray-600">
+          {category}
+        </span>
+      )}
 
       <div className="flex items-center gap-2 flex-wrap">
         {item.offer && (
@@ -305,16 +316,16 @@ export function CartItem({ item, isFirst = false, onMutated }: CartItemProps) {
 
   return (
     <form ref={formRef} onChange={handleChange} id={`item-${item.id}`}>
-      <section className="cart-item relative border-b border-gray-200 pb-6 mb-6">
+      <section className="cart-item relative rounded-2xl border border-border-subtle bg-surface-card p-4 mb-4">
         <input type="hidden" name="id" value={item.id} />
 
-        <div className="md:flex rtl:space-x-reverse md:space-x-12 items-start justify-between mb-4 last:mb-0">
+        <div className="md:flex rtl:space-x-reverse md:space-x-12 md:items-end justify-between mb-4 last:mb-0">
           <div className="flex flex-1 rtl:space-x-reverse space-x-4">
             <Link to={item.url} className="relative overflow-hidden shrink-0">
               <Image
                 src={item.product_image}
                 alt={item.product_name}
-                className="flex-none w-24 h-20 object-center object-cover"
+                className="flex-none w-28 h-24 md:w-36 md:h-[7.5rem] object-center object-cover"
                 aspectRatio="6/5"
                 priority={isFirst}
               />
@@ -329,11 +340,11 @@ export function CartItem({ item, isFirst = false, onMutated }: CartItemProps) {
             <CartItemInfo item={item} />
           </div>
 
-          <div className="cart-item__controls mt-5 md:mt-0 flex gap-6 md:gap-8 justify-between items-center md:items-start">
+          <div className="cart-item__controls mt-5 md:mt-0 flex gap-6 md:gap-8 justify-between items-center">
             <CartItemQuantity item={item} disabled={deleting} onChange={changeQuantity} />
 
-            <p className="flex-none font-bold">
-              {/* label shows on mobile only — desktop has the column heading */}
+            <p className="flex-none font-bold md:text-2xl">
+              {/* label shows on mobile only */}
               <span className="md:hidden">{t('blocks.cart.item_total', 'Total')}: </span>
               <span className="inline-block item-total">{cartItemTotalLabel(item, format, t)}</span>
             </p>

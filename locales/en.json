@@ -74,5 +74,18 @@
   "pages.order.edit_period_ended": "The period to edit the review has ended",
   "pages.order.delete_period_ended": "The period to delete the review has ended",
   "pages.order.days_since_added": "days since it was added",
+  "pages.warranty.title": "Activate your warranty",
+  "pages.warranty.subtitle": "Enter the serial number printed on your product to activate the warranty.",
+  "pages.warranty.serial": "Serial number",
+  "pages.warranty.serial_placeholder": "Enter serial number",
+  "pages.warranty.serial_hint": "You can find the serial number on the product label.",
+  "pages.warranty.activate": "Activate warranty",
+  "pages.warranty.error": "Could not activate the warranty. Check the serial number and try again.",
+  "pages.warranty.success": "Warranty activated successfully",
+  "pages.warranty.number": "Warranty number",
+  "pages.warranty.product": "Product name",
+  "pages.warranty.activated_at": "Activation date",
+  "pages.warranty.expires_at": "Warranty end date",
+  "pages.warranty.back_home": "Back to home",
   "blocks.home.blog": "Blog"
 }

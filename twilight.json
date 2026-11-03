@@ -474,7 +474,7 @@
     },
     {
       "type": "string",
-      "format": "url",
+      "format": "text",
       "label": "رابط زر بنر التركيب",
       "id": "product_install_banner_url",
       "value": "/branches",
@@ -514,9 +514,12 @@
       "type": "collection",
       "format": "collection",
       "label": "مراكز التركيب المعتمدة",
+      "item_label": "مركز تركيب",
       "description": "أضف مراكز التركيب هنا — ستظهر في صفحة /branches",
       "value": [],
       "required": false,
+      "minLength": 0,
+      "maxLength": 50,
       "fields": [
         { "id": "name",     "type": "string", "format": "text",     "label": "اسم المركز",        "required": true  },
         { "id": "city",     "type": "string", "format": "text",     "label": "المدينة",           "required": true  },

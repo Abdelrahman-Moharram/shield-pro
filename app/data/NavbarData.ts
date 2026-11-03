@@ -1,7 +1,8 @@
 import type { MenuItem } from '@salla.sa/twilight-theme-engine/types';
 
 /**
- * Navbar Navigation Items targeting Shieldo Pro Pages and Landing Sections
+ * Fallback navbar, used only when the store's `menus/header` is empty (the merchant
+ * dashboard menu wins). Real pages use their route; the rest are home-page anchors.
  * Schema conforms to Salla MenuItem backend structure
  */
 export const navbarData: MenuItem[] = [
@@ -9,7 +10,7 @@ export const navbarData: MenuItem[] = [
     id: 1,
     order: 1,
     title: 'الرئيسية',
-    url: '/#hero',
+    url: '/',
     target: '_self',
     has_children: false,
     children: [],
@@ -45,7 +46,7 @@ export const navbarData: MenuItem[] = [
     id: 5,
     order: 5,
     title: 'مراكز التركيب',
-    url: '/#installers',
+    url: '/branches',
     target: '_self',
     has_children: false,
     children: [],
@@ -54,7 +55,7 @@ export const navbarData: MenuItem[] = [
     id: 6,
     order: 6,
     title: 'الضمان',
-    url: '/#warranty',
+    url: '/warranty',
     target: '_self',
     has_children: false,
     children: [],

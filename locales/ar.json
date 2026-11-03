@@ -74,5 +74,18 @@
   "pages.order.edit_period_ended": "تم انتهاء المدة المحددة لتعديل التقييم",
   "pages.order.delete_period_ended": "تم انتهاء المدة المحددة لحذف التقييم",
   "pages.order.days_since_added": "أيام من إضافته",
+  "pages.warranty.title": "فعل ضمان منتجك",
+  "pages.warranty.subtitle": "لتفعيل الضمان أدخل الرقم التسلسلي الموجود على منتج.",
+  "pages.warranty.serial": "الرقم التسلسلي",
+  "pages.warranty.serial_placeholder": "ادخل الرقم التسلسلي",
+  "pages.warranty.serial_hint": "يمكنك العثور على الرقم التسلسلي على ملصق المنتج.",
+  "pages.warranty.activate": "تفعيل الضمان",
+  "pages.warranty.error": "تعذر تفعيل الضمان، تأكد من الرقم التسلسلي وحاول مرة أخرى.",
+  "pages.warranty.success": "تم تفعيل الضمان بنجاح",
+  "pages.warranty.number": "رقم الضمان",
+  "pages.warranty.product": "اسم المنتج",
+  "pages.warranty.activated_at": "تاريخ التفعيل",
+  "pages.warranty.expires_at": "تاريخ انتهاء الضمان",
+  "pages.warranty.back_home": "العودة للرئيسية",
   "blocks.home.blog": "المدونة"
 }

@@ -3,10 +3,11 @@ import { useMemo, useState } from 'react';
 import { Link } from '@salla.sa/twilight-theme-engine/common';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
+import { useTheme } from '@salla.sa/twilight-theme-engine/hooks/useTheme';
 
 /**
  * Branch shape — matches what the merchant adds in twilight.json installation_centers setting.
- * Each branch is a plain object stored in settings.installation_centers (array).
+ * Each branch is stored in settings.installation_centers (array of objects).
  */
 interface BranchItem {
   name: string;
@@ -18,6 +19,82 @@ interface BranchItem {
   mapUrl?: string;
   hours?: string;
   services?: string; // comma-separated
+}
+
+function parseBranches(raw: unknown): BranchItem[] {
+  if (!raw) return [];
+  let list: any[] = [];
+  if (Array.isArray(raw)) {
+    list = raw;
+  } else if (typeof raw === 'string') {
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) list = parsed;
+      else if (parsed && typeof parsed === 'object') list = Object.values(parsed);
+    } catch {
+      return [];
+    }
+  } else if (typeof raw === 'object') {
+    list = Object.values(raw);
+  }
+
+  return list
+    .filter((item) => item && typeof item === 'object')
+    .map((item) => {
+      const name =
+        item.name ||
+        item['installation_centers.name'] ||
+        item.center_name ||
+        item.title ||
+        '';
+      const city =
+        item.city ||
+        item['installation_centers.city'] ||
+        '';
+      const district =
+        item.district ||
+        item['installation_centers.district'] ||
+        '';
+      const address =
+        item.address ||
+        item['installation_centers.address'] ||
+        '';
+      const phone =
+        item.phone ||
+        item['installation_centers.phone'] ||
+        '';
+      const whatsapp =
+        item.whatsapp ||
+        item['installation_centers.whatsapp'] ||
+        '';
+      const mapUrl =
+        item.mapUrl ||
+        item.map_url ||
+        item['installation_centers.mapUrl'] ||
+        item['installation_centers.map_url'] ||
+        '';
+      const hours =
+        item.hours ||
+        item['installation_centers.hours'] ||
+        '';
+      const services =
+        item.services ||
+        item['installation_centers.services'] ||
+        '';
+
+      return {
+        name: String(name).trim(),
+        city: String(city).trim(),
+        district: String(district).trim(),
+        address: String(address).trim(),
+        phone: String(phone).trim(),
+        whatsapp: String(whatsapp).trim(),
+        mapUrl: String(mapUrl).trim(),
+        hours: String(hours).trim(),
+        services: String(services).trim(),
+      };
+    })
+    .filter((b) => b.name || b.city || b.address);
 }
 
 export const Route = (createFileRoute as any)('/{-$locale}/branches')({
@@ -33,13 +110,38 @@ export const Route = (createFileRoute as any)('/{-$locale}/branches')({
 function BranchesPage() {
   const { t } = useTranslation();
   const { theme } = useTwilight();
-  const settings = (theme?.settings || {}) as Record<string, any>;
+  const { settings: themeSettings } = useTheme();
 
-  // Branches come from twilight.json setting `installation_centers` (array of objects).
-  // See twilight.json: settings[].id = "installation_centers"
-  const branches: BranchItem[] = Array.isArray(settings.installation_centers)
-    ? settings.installation_centers
-    : [];
+  const themeSettingsAny = (themeSettings || {}) as Record<string, any>;
+  const themeObjSettingsAny = (theme?.settings || {}) as Record<string, any>;
+
+  // Try all known paths where Salla may deliver collection settings
+  const rawSetting =
+    themeObjSettingsAny.installation_centers ??
+    themeSettingsAny.installation_centers ??
+    (typeof window !== 'undefined'
+      ? (window as any).salla?.config?.get('theme.settings.installation_centers')
+      : undefined);
+
+  // Debug: collect all keys that start with "installation_centers" in case
+  // Salla delivers them as flat dotted keys on the settings object itself
+  const flatDottedBranch = (() => {
+    const src = themeObjSettingsAny ?? themeSettingsAny ?? {};
+    const keys = Object.keys(src).filter((k) => k.startsWith('installation_centers.') || k.startsWith('installation_centers['));
+    if (keys.length === 0) return null;
+    // Group by array index if present, otherwise treat as one item
+    const item: Record<string, unknown> = {};
+    keys.forEach((k) => {
+      const field = k.replace(/^installation_centers\./, '').replace(/^installation_centers\[.*?\]\./, '');
+      item[field] = src[k];
+    });
+    return Object.keys(item).length > 0 ? [item] : null;
+  })();
+
+  const branches: BranchItem[] = useMemo(
+    () => parseBranches(rawSetting ?? flatDottedBranch),
+    [rawSetting, flatDottedBranch],
+  );
 
   const cities = useMemo(() => {
     const unique = Array.from(new Set(branches.map((b) => b.city).filter(Boolean)));

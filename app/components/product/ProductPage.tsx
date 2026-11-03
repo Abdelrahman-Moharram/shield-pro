@@ -24,7 +24,7 @@ import { ProductsSlider } from '../home';
  * Defaults to 'related' products and falls back to 'latest' so the section
  * is always populated with items matching the Figma mockup.
  */
-function RelatedProducts({
+export function RelatedProducts({
   productId,
   categoryId,
   title,

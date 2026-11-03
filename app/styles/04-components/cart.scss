@@ -1,25 +1,24 @@
 /*
-  Cart page — column-heading row above flat item rows.
+  Cart page — bordered item cards + order-summary card.
   Markup: app/components/cart/{CartPage,CartItem}.tsx
 */
-.cart-titles {
-  span span:first-child {
-    @apply w-[120px] text-center;
-  }
-}
-
 .cart-item {
   &__controls {
     @apply md:justify-end;
   }
 
-  /* line the stepper up under the "Quantity" heading (fixed 120px column) */
-  &__controls .s-quantity-input .s-quantity-input-container {
-    @apply w-[120px];
+  /* cart stepper: dark square buttons, no pill (the product page keeps the pill) */
+  .s-quantity-input .s-quantity-input-container {
+    @apply h-auto gap-2 border-0 bg-transparent p-0;
+  }
+
+  .s-quantity-input .s-quantity-input-button,
+  .s-quantity-input .s-quantity-input-button:hover:not(:disabled) {
+    @apply rounded-lg bg-secondary fill-white text-white;
   }
 
   &__delete {
-    @apply w-5;
+    @apply absolute end-4 top-4 w-5;
 
     &:disabled {
       @apply cursor-wait;
@@ -42,13 +41,31 @@
 
 /*
   Sidebar cards (engine): the Order Summary box (`… transition-height`) and the
-  free-shipping progress box (`#free-shipping`) — flat and gray instead of the
-  default white drop-shadow card.
+  free-shipping progress box (`#free-shipping`) — white bordered card instead of
+  the default drop-shadow one.
 */
 #cart-gifting,
 .cart .shadow-default.transition-height,
 .cart #free-shipping {
-  @apply bg-gray-100 shadow-none rounded;
+  @apply rounded-2xl border border-border-subtle bg-surface-card shadow-none;
+}
+
+/* summary: divider under the title, bold "Total" row */
+.cart .transition-height {
+  > h2 {
+    @apply mb-5 border-b border-border-subtle pb-4 text-base;
+  }
+
+  > .text-lg span {
+    @apply font-bold text-gray-900;
+  }
+}
+
+/* Salla buttons take the store colour; use the theme gold for submit + coupon */
+.cart .cart-submit-wrap .s-button-btn,
+.cart .btn--coupon.has-not-coupon,
+.cart .btn--coupon.has-not-coupon .s-button-btn {
+  @apply border-primary bg-primary text-secondary-dark hover:border-primary-hover hover:bg-primary-hover;
 }
 
 #cart-gifting .s-gifting-widget .s-list-tile-item{
@@ -59,8 +76,7 @@ salla-list-tile.s-gifting-widget .s-list-tile-item-content::before{
   @apply max-w-[100%];
 }
 
-/* Free-shipping progress track (engine default `bg-border-color`) — darken it so
-   it reads against the now-gray card behind it. The fill stays `bg-primary`. */
+/* Free-shipping progress track (engine default `bg-border-color`) */
 .cart #free-shipping-bar {
   @apply bg-gray-200;
 }

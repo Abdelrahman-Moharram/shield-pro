@@ -24,7 +24,8 @@ export function ProductInstallBanner({ product }: ProductInstallBannerProps) {
     (settings.product_install_banner_desc as string) ||
     'يمكنك الوصول إلى مراكز التركيب المعتمدة من شيلدو برو للحصول على أفضل جودة تركيب.';
   const btnText = (settings.product_install_banner_btn as string) || 'عرض مراكز التركيب';
-  const btnUrl = (settings.product_install_banner_url as string) || '/branches';
+  const rawUrl = ((settings.product_install_banner_url as string) || '').trim() || '/branches';
+  const btnUrl = rawUrl.startsWith('/') || rawUrl.startsWith('http') ? rawUrl : `/${rawUrl}`;
 
   return (
     <section className="product-install-banner mb-14 sm:mb-20 text-start">
