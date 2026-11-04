@@ -1,6 +1,6 @@
 # shield-pro
 
-React storefront theme starter kit for [Salla](https://salla.sa) stores —
+React storefront theme starter kit for [Salla](https://salla.sa) stores 
 built with TanStack Start and Vite, rendered server-side in workerd via
 `@salla.sa/twilight-theme-engine`.
 
