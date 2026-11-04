@@ -1,4 +1,5 @@
 import type { Product } from '@salla.sa/twilight-theme-engine/types';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
 import { Link } from '@salla.sa/twilight-theme-engine/common';
 import { isAutomotiveTintProduct } from './productHelpers';
@@ -13,17 +14,18 @@ interface ProductInstallBannerProps {
  * All text comes from theme settings — hidden entirely if no title is set.
  */
 export function ProductInstallBanner({ product }: ProductInstallBannerProps) {
+  const { t } = useTranslation();
   const { theme } = useTwilight();
   const settings = (theme?.settings || {}) as Record<string, any>;
 
   if (settings.product_show_install_banner === false) return null;
   if (product && !isAutomotiveTintProduct(product)) return null;
 
-  const title = (settings.product_install_banner_title as string) || 'ترغب في تركيب المنتج؟';
+  const title = (settings.product_install_banner_title as string) || t('pages.products.install_banner_title', 'ترغب في تركيب المنتج؟');
   const desc =
     (settings.product_install_banner_desc as string) ||
-    'يمكنك الوصول إلى مراكز التركيب المعتمدة من شيلدو برو للحصول على أفضل جودة تركيب.';
-  const btnText = (settings.product_install_banner_btn as string) || 'عرض مراكز التركيب';
+    t('pages.products.install_banner_desc', 'يمكنك الوصول إلى مراكز التركيب المعتمدة من شيلدو برو للحصول على أفضل جودة تركيب.');
+  const btnText = (settings.product_install_banner_btn as string) || t('pages.products.install_banner_btn', 'عرض مراكز التركيب');
   const rawUrl = ((settings.product_install_banner_url as string) || '').trim() || '/branches';
   const btnUrl = rawUrl.startsWith('/') || rawUrl.startsWith('http') ? rawUrl : `/${rawUrl}`;
 

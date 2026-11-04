@@ -1,4 +1,5 @@
 import type { Product } from '@salla.sa/twilight-theme-engine/types';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
 import { getProductFeatures, type ProductFeatureItem } from './productHelpers';
 
@@ -71,15 +72,16 @@ function FeatureIcon({ item, index }: { item: ProductFeatureItem; index: number 
  * Returns null if neither source yields data.
  */
 export function ProductFeatures({ product }: ProductFeaturesProps) {
+  const { t } = useTranslation();
   const { theme } = useTwilight();
   const settings = (theme?.settings || {}) as Record<string, any>;
 
   if (settings.product_show_features === false) return null;
 
-  const features = getProductFeatures(product);
+  const features = getProductFeatures(product, t);
   if (features.length === 0) return null;
 
-  const sectionTitle = (settings.product_features_title as string) || 'لماذا تختار هذا المنتج؟';
+  const sectionTitle = (settings.product_features_title as string) || t('pages.products.features_title', 'لماذا تختار هذا المنتج؟');
 
   return (
     <section className="product-features mb-14 sm:mb-20 text-center">

@@ -95,7 +95,9 @@ const isLinkable = (url?: string): url is string => !!url && url !== '#';
  * root-level row regardless of whether the menu has images at all.
  */
 function NavLabel({ item, withImage }: { item: MenuItem; withImage: boolean }) {
-  if (!withImage) return <span>{item.title}</span>;
+  const { t } = useTranslation();
+  const title = t(item.title, item.title);
+  if (!withImage) return <span>{title}</span>;
   return (
     <span className="site-nav-drawer__label">
       {item.image ? (
@@ -113,7 +115,7 @@ function NavLabel({ item, withImage }: { item: MenuItem; withImage: boolean }) {
       ) : (
         <NavImagePlaceholder item={item} />
       )}
-      <span>{item.title}</span>
+      <span>{title}</span>
     </span>
   );
 }
@@ -188,7 +190,8 @@ function NavColumn({
                   return;
                 }
 
-                const target = document.getElementById(targetId);
+                const doc = e.currentTarget.ownerDocument;
+                const target = doc?.getElementById(targetId);
                 if (target) {
                   e.preventDefault();
                   target.scrollIntoView({ behavior: 'smooth', block: 'start' });

@@ -9,7 +9,7 @@ export const navbarData: MenuItem[] = [
   {
     id: 1,
     order: 1,
-    title: 'الرئيسية',
+    title: 'nav.home',
     url: '/',
     target: '_self',
     has_children: false,
@@ -18,7 +18,7 @@ export const navbarData: MenuItem[] = [
   {
     id: 2,
     order: 2,
-    title: 'المنتجات',
+    title: 'nav.products',
     url: '/products',
     target: '_self',
     has_children: false,
@@ -27,7 +27,7 @@ export const navbarData: MenuItem[] = [
   {
     id: 3,
     order: 3,
-    title: 'خدماتنا',
+    title: 'nav.services',
     url: '/#services',
     target: '_self',
     has_children: false,
@@ -36,7 +36,7 @@ export const navbarData: MenuItem[] = [
   {
     id: 4,
     order: 4,
-    title: 'لماذا شيلدو برو',
+    title: 'nav.why_us',
     url: '/#why-us',
     target: '_self',
     has_children: false,
@@ -45,7 +45,7 @@ export const navbarData: MenuItem[] = [
   {
     id: 5,
     order: 5,
-    title: 'مراكز التركيب',
+    title: 'nav.branches',
     url: '/branches',
     target: '_self',
     has_children: false,
@@ -54,7 +54,7 @@ export const navbarData: MenuItem[] = [
   {
     id: 6,
     order: 6,
-    title: 'الضمان',
+    title: 'nav.warranty',
     url: '/warranty',
     target: '_self',
     has_children: false,
@@ -63,7 +63,7 @@ export const navbarData: MenuItem[] = [
   {
     id: 7,
     order: 7,
-    title: 'كيف تبدأ',
+    title: 'nav.how_it_works',
     url: '/#how-it-works',
     target: '_self',
     has_children: false,
@@ -72,7 +72,7 @@ export const navbarData: MenuItem[] = [
   {
     id: 8,
     order: 8,
-    title: 'المساعدة',
+    title: 'nav.faq',
     url: '/faq',
     target: '_self',
     has_children: false,

@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 
 export interface ProtectionBannerItem {
   id: string | number;
@@ -29,12 +30,13 @@ export interface ProtectionBannerProps {
 }
 
 export const ProtectionBanner = memo(function ProtectionBanner({ data }: ProtectionBannerProps) {
+  const { t } = useTranslation();
   const item = {
-    title: (data?.title as string) || BANNER_ITEMS?.title,
-    description: (data?.description as string) || BANNER_ITEMS?.description,
-    buttonText: (data?.btnname as string) || BANNER_ITEMS?.buttonText,
-    buttonUrl: (data?.url as string) || BANNER_ITEMS?.buttonUrl,
-    image: (data?.image as string) || BANNER_ITEMS?.image,
+    title: (data?.title as string) || t('blocks.home.protection_banner_title', BANNER_ITEMS.title),
+    description: (data?.description as string) || t('blocks.home.protection_banner_desc', BANNER_ITEMS.description),
+    buttonText: (data?.btnname as string) || t('blocks.home.protection_banner_btn', BANNER_ITEMS.buttonText),
+    buttonUrl: (data?.url as string) || BANNER_ITEMS.buttonUrl,
+    image: (data?.image as string) || BANNER_ITEMS.image,
   };
 
   return (

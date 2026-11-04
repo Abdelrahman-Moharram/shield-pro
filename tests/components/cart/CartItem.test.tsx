@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import type { CartItem as CartItemType } from '@salla.sa/twilight-theme-engine/types';
 import { CartItem } from '../../../app/components/cart/CartItem';
+
+const renderWithClient = (ui: React.ReactElement) => {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>);
+};
 
 vi.mock('@salla.sa/twilight-theme-engine/i18n', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -34,7 +40,7 @@ const item = {
 
 describe('CartItem weight', () => {
   it("labels the weight with Twig's pages.products.weight key", () => {
-    render(<CartItem item={item} />);
+    renderWithClient(<CartItem item={item} />);
     expect(screen.getByText(/pages\.products\.weight/)).toBeTruthy();
     expect(screen.getByText('2 kg')).toBeTruthy();
   });
@@ -57,7 +63,7 @@ describe('CartItem quantity', () => {
   });
 
   function renderWithOption(value: string) {
-    const { container } = render(<CartItem item={item} />);
+    const { container } = renderWithClient(<CartItem item={item} />);
     const form = container.querySelector('form')!;
     const option = document.createElement('input');
     option.name = 'options[7]';
@@ -78,7 +84,7 @@ describe('CartItem quantity', () => {
   });
 
   it('keeps the quantity in the item form, so an option change does not reset it to 1', () => {
-    const { container } = render(<CartItem item={{ ...item, quantity: 3 }} />);
+    const { container } = renderWithClient(<CartItem item={{ ...item, quantity: 3 }} />);
     expect(new FormData(container.querySelector('form')!).get('quantity')).toBe('3');
   });
 
@@ -106,7 +112,7 @@ describe('CartItem delete', () => {
 
   it('refetches through onMutated after a delete, keeping the row for the refetch to drop', async () => {
     const onMutated = vi.fn();
-    const { container } = render(<CartItem item={item} onMutated={onMutated} />);
+    const { container } = renderWithClient(<CartItem item={item} onMutated={onMutated} />);
     await act(async () => {
       fireEvent.click(screen.getByLabelText('common.elements.remove'));
     });
@@ -116,7 +122,7 @@ describe('CartItem delete', () => {
   });
 
   it('drops its own row after a delete when nothing refetches the cart', async () => {
-    const { container } = render(<CartItem item={item} />);
+    const { container } = renderWithClient(<CartItem item={item} />);
     await act(async () => {
       fireEvent.click(screen.getByLabelText('common.elements.remove'));
     });

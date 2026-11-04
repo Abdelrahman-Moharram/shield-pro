@@ -1,13 +1,12 @@
 import { useState, useMemo, useEffect } from 'react';
 import { HookSlot } from '@salla.sa/twilight-theme-engine/hooks';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
-import { Breadcrumb } from '@salla.sa/twilight-theme-engine/common';
+import { Breadcrumb, NoContent } from '@salla.sa/twilight-theme-engine/common';
 import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
 import type { ProductListLoaderData } from '@salla.sa/twilight-theme-engine/routes/product-listing';
 import type { Product } from '@salla.sa/twilight-theme-engine/types';
 import { ProductCardItem, type ProductItem } from '../shared/cards/ProductCardItem';
 import { ProductListHero } from './ProductListHero';
-import { CATALOG_PRODUCTS } from '../../data/ProductsCatalogData';
 import { BottomSheet } from '../common';
 import { product, parseNextPageToken } from '@salla.sa/twilight-theme-engine/api/product';
 import { getProductFilterData } from './productHelpers';
@@ -21,7 +20,7 @@ function isSallaProduct(item: Product | ProductItem): item is Product {
 
 export function ProductListPage({ page, source, query, pagination, products: initialProducts }: ProductListLoaderData) {
   const { theme } = useTwilight();
-  const { t } = useTranslation();
+  const { t, isRTL } = useTranslation();
 
   const [extra, setExtra] = useState<Product[]>([]);
   const [nextCursor, setNextCursor] = useState(pagination?.next);
@@ -60,9 +59,9 @@ export function ProductListPage({ page, source, query, pagination, products: ini
     }
   }, []);
 
-  // Combined product pool: use Salla dynamic products if available, fallback to Figma catalog items
+  // Combined product pool: use Salla dynamic products if available
   const baseProducts = useMemo<(Product | ProductItem)[]>(() => {
-    return initialProducts?.length ? [...initialProducts, ...extra] : CATALOG_PRODUCTS;
+    return initialProducts?.length ? [...initialProducts, ...extra] : [];
   }, [initialProducts, extra]);
 
   // Handle Tab Switch
@@ -173,7 +172,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
   ]);
 
   return (
-    <div className="bg-[#FAF8F5] dark:bg-[#121212] min-h-screen pb-20" dir="rtl">
+    <div className="bg-[#FAF8F5] dark:bg-[#121212] min-h-screen pb-20" dir={isRTL ? 'rtl' : 'ltr'}>
       {/* 1. Hero Banner */}
       <ProductListHero />
 
@@ -199,7 +198,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                   : 'text-gray-600 dark:text-gray-300 hover:text-[#D89F2D]'
               }`}
             >
-              جميع المنتجات
+              {t('pages.products.tab_all', 'جميع المنتجات')}
             </button>
             <button
               type="button"
@@ -210,7 +209,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                   : 'text-gray-600 dark:text-gray-300 hover:text-[#D89F2D]'
               }`}
             >
-              العزل الحراري
+              {t('pages.products.tab_thermal', 'العزل الحراري')}
             </button>
             <button
               type="button"
@@ -221,7 +220,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                   : 'text-gray-600 dark:text-gray-300 hover:text-[#D89F2D]'
               }`}
             >
-              حماية الطلاء PPF
+              {t('pages.products.tab_ppf', 'حماية الطلاء PPF')}
             </button>
             <button
               type="button"
@@ -232,7 +231,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                   : 'text-gray-600 dark:text-gray-300 hover:text-[#D89F2D]'
               }`}
             >
-              العروض
+              {t('pages.products.tab_offers', 'العروض')}
             </button>
           </div>
         </div>
@@ -244,7 +243,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="ابحث عن المنتج..."
+              placeholder={t('pages.products.search_placeholder', 'ابحث عن المنتج...')}
               className="w-full h-12 sm:h-14 pr-12 pl-10 bg-white dark:bg-[#1E1E1E] text-gray-800 dark:text-white rounded-2xl border border-gray-200 dark:border-neutral-700 focus:outline-none focus:border-[#D89F2D] focus:ring-2 focus:ring-[#D89F2D]/20 text-sm sm:text-base transition-all shadow-sm"
             />
             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
@@ -275,7 +274,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M4 6h16M7 12h10M10 18h4" strokeLinecap="round" />
             </svg>
-            <span>التصفية {activeFiltersCount > 0 ? `(${activeFiltersCount})` : ''}</span>
+            <span>{t('pages.products.filter_btn', 'التصفية')} {activeFiltersCount > 0 ? `(${activeFiltersCount})` : ''}</span>
           </button>
 
           <div className="relative flex-1">
@@ -284,10 +283,10 @@ export function ProductListPage({ page, source, query, pagination, products: ini
               onChange={(e) => setSelectedSort(e.target.value as SortOption)}
               className="w-full h-11 bg-white dark:bg-[#1E1E1E] text-gray-800 dark:text-gray-200 font-bold text-xs sm:text-sm px-3 rounded-xl border border-gray-200 dark:border-neutral-700 focus:outline-none focus:border-[#D89F2D]"
             >
-              <option value="latest">الترتيب: الأحدث</option>
-              <option value="price-asc">السعر: من الأقل للأعلى</option>
-              <option value="price-desc">السعر: من الأعلى للأقل</option>
-              <option value="popular">الأكثر طلباً</option>
+              <option value="latest">{t('pages.products.sort_latest_prefix', 'الترتيب: الأحدث')}</option>
+              <option value="price-asc">{t('pages.products.sort_price_asc_prefix', 'السعر: من الأقل للأعلى')}</option>
+              <option value="price-desc">{t('pages.products.sort_price_desc_prefix', 'السعر: من الأعلى للأقل')}</option>
+              <option value="popular">{t('pages.products.sort_popular', 'الأكثر طلباً')}</option>
             </select>
           </div>
         </div>
@@ -298,21 +297,21 @@ export function ProductListPage({ page, source, query, pagination, products: ini
           <aside className="hidden lg:block lg:col-span-3 sticky top-24">
             <div className="bg-white dark:bg-[#1E1E1E] rounded-2xl border border-gray-100 dark:border-neutral-800 p-6 shadow-sm">
               <div className="flex items-center justify-between pb-4 mb-5 border-b border-gray-100 dark:border-neutral-800">
-                <h3 className="font-black text-lg text-gray-900 dark:text-white">الفلاتر</h3>
+                <h3 className="font-black text-lg text-gray-900 dark:text-white">{t('pages.products.filters_title', 'الفلاتر')}</h3>
                 {activeFiltersCount > 0 && (
                   <button
                     type="button"
                     onClick={resetFilters}
                     className="text-xs font-bold text-[#D89F2D] hover:underline"
                   >
-                    مسح الكل
+                    {t('pages.products.clear_all', 'مسح الكل')}
                   </button>
                 )}
               </div>
 
               {/* Filter 1: Category */}
               <div className="mb-6">
-                <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200 mb-3">الفئة</h4>
+                <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200 mb-3">{t('pages.products.category_filter', 'الفئة')}</h4>
                 <div className="space-y-2.5">
                   <label className="flex items-center gap-3 cursor-pointer select-none group">
                     <input
@@ -322,7 +321,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                       className="w-4 h-4 rounded text-[#D89F2D] focus:ring-[#D89F2D] border-gray-300 dark:border-neutral-700 dark:bg-neutral-800"
                     />
                     <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                      عزل حراري
+                      {t('pages.products.category_thermal', 'عزل حراري')}
                     </span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer select-none group">
@@ -333,7 +332,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                       className="w-4 h-4 rounded text-[#D89F2D] focus:ring-[#D89F2D] border-gray-300 dark:border-neutral-700 dark:bg-neutral-800"
                     />
                     <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                      حماية الطلاء
+                      {t('pages.products.category_ppf', 'حماية الطلاء')}
                     </span>
                   </label>
                 </div>
@@ -341,7 +340,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
 
               {/* Filter 2: Insulation Level */}
               <div className="mb-6 pt-5 border-t border-gray-100 dark:border-neutral-800">
-                <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200 mb-3">مستوى العزل</h4>
+                <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200 mb-3">{t('pages.products.tint_level_filter', 'مستوى العزل')}</h4>
                 <div className="space-y-2.5">
                   <label className="flex items-center gap-3 cursor-pointer select-none group">
                     <input
@@ -351,7 +350,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                       className="w-4 h-4 rounded text-[#D89F2D] focus:ring-[#D89F2D] border-gray-300 dark:border-neutral-700 dark:bg-neutral-800"
                     />
                     <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                      شفاف 50%
+                      {t('pages.products.tint_50', 'شفاف 50%')}
                     </span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer select-none group">
@@ -362,7 +361,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                       className="w-4 h-4 rounded text-[#D89F2D] focus:ring-[#D89F2D] border-gray-300 dark:border-neutral-700 dark:bg-neutral-800"
                     />
                     <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                      خفيف العتمة 35% (VLT)
+                      {t('pages.products.tint_35', 'خفيف العتمة 35% (VLT)')}
                     </span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer select-none group">
@@ -373,7 +372,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                       className="w-4 h-4 rounded text-[#D89F2D] focus:ring-[#D89F2D] border-gray-300 dark:border-neutral-700 dark:bg-neutral-800"
                     />
                     <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                      متوسط العتمة 20% - 25%
+                      {t('pages.products.tint_20_25', 'متوسط العتمة 20% - 25%')}
                     </span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer select-none group">
@@ -384,7 +383,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                       className="w-4 h-4 rounded text-[#D89F2D] focus:ring-[#D89F2D] border-gray-300 dark:border-neutral-700 dark:bg-neutral-800"
                     />
                     <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                      معتم 10% - 15%
+                      {t('pages.products.tint_10_15', 'معتم 10% - 15%')}
                     </span>
                   </label>
                 </div>
@@ -392,7 +391,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
 
               {/* Filter 3: Compliance */}
               <div className="mb-6 pt-5 border-t border-gray-100 dark:border-neutral-800">
-                <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200 mb-3">التوافق</h4>
+                <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200 mb-3">{t('pages.products.compliance_filter', 'التوافق')}</h4>
                 <label className="flex items-center gap-3 cursor-pointer select-none group">
                   <input
                     type="checkbox"
@@ -401,23 +400,23 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                     className="w-4 h-4 rounded text-[#D89F2D] focus:ring-[#D89F2D] border-gray-300 dark:border-neutral-700 dark:bg-neutral-800"
                   />
                   <span className="text-sm text-gray-600 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
-                    متوافق مع إرشادات المرور
+                    {t('pages.products.traffic_compliant', 'متوافق مع إرشادات المرور')}
                   </span>
                 </label>
               </div>
 
               {/* Filter 4: Sort */}
               <div className="pt-5 border-t border-gray-100 dark:border-neutral-800">
-                <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200 mb-2">الترتيب حسب</h4>
+                <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200 mb-2">{t('pages.products.sort_by', 'الترتيب حسب')}</h4>
                 <select
                   value={selectedSort}
                   onChange={(e) => setSelectedSort(e.target.value as SortOption)}
                   className="w-full h-11 bg-gray-50 dark:bg-neutral-800 text-gray-800 dark:text-gray-200 font-bold text-sm px-3 rounded-xl border border-gray-200 dark:border-neutral-700 focus:outline-none focus:border-[#D89F2D]"
                 >
-                  <option value="latest">الأحدث</option>
-                  <option value="price-asc">السعر: من الأقل للأعلى</option>
-                  <option value="price-desc">السعر: من الأعلى للأقل</option>
-                  <option value="popular">الأكثر طلباً</option>
+                  <option value="latest">{t('pages.products.sort_latest', 'الأحدث')}</option>
+                  <option value="price-asc">{t('pages.products.sort_price_asc', 'السعر: من الأقل للأعلى')}</option>
+                  <option value="price-desc">{t('pages.products.sort_price_desc', 'السعر: من الأعلى للأقل')}</option>
+                  <option value="popular">{t('pages.products.sort_popular', 'الأكثر طلباً')}</option>
                 </select>
               </div>
             </div>
@@ -428,15 +427,20 @@ export function ProductListPage({ page, source, query, pagination, products: ini
             {/* Products Header Bar */}
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl sm:text-2xl font-black text-gray-900 dark:text-white">
-                جميع المنتجات{' '}
+                {t('pages.products.all_products_count', 'جميع المنتجات')}{' '}
                 <span className="text-sm font-normal text-gray-500 mr-2">
-                  ({filteredProducts.length} منتج)
+                  ({filteredProducts.length} {t('pages.products.product_unit', 'منتج')})
                 </span>
               </h2>
             </div>
 
             {/* Grid */}
-            {filteredProducts.length > 0 ? (
+            {!initialProducts?.length ? (
+              <NoContent
+                icon="sicon-box-empty"
+                message={t('pages.products.no_products', 'لا توجد منتجات حالياً')}
+              />
+            ) : filteredProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
                 {filteredProducts.map((prod) => (
                   <ProductCardItem key={prod.id} product={prod} />
@@ -451,17 +455,17 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  لا توجد منتجات مطابقة لخياراتك
+                  {t('pages.products.no_matches_title', 'لا توجد منتجات مطابقة لخياراتك')}
                 </h3>
                 <p className="text-sm text-gray-500 mb-6">
-                  جرّب تغيير فلاتر البحث أو مسح الكلمات للوصول إلى المنتجات.
+                  {t('pages.products.no_matches_desc', 'جرّب تغيير فلاتر البحث أو مسح الكلمات للوصول إلى المنتجات.')}
                 </p>
                 <button
                   type="button"
                   onClick={resetFilters}
                   className="px-6 py-2.5 bg-[#D89F2D] text-neutral-900 font-bold rounded-xl text-sm hover:bg-[#c58f25] transition-colors"
                 >
-                  إعادة ضبط الفلاتر
+                  {t('pages.products.reset_filters', 'إعادة ضبط الفلاتر')}
                 </button>
               </div>
             )}
@@ -484,11 +488,11 @@ export function ProductListPage({ page, source, query, pagination, products: ini
       <BottomSheet
         open={mobileFiltersOpen}
         onClose={() => setMobileFiltersOpen(false)}
-        title="تصفية المنتجات"
+        title={t('pages.products.drawer_title', 'تصفية المنتجات')}
       >
-        <div className="p-4 space-y-6 text-right" dir="rtl">
+        <div className="p-4 space-y-6 text-start" dir={isRTL ? 'rtl' : 'ltr'}>
           <div>
-            <h4 className="font-bold text-base text-gray-900 dark:text-white mb-3">الفئة</h4>
+            <h4 className="font-bold text-base text-gray-900 dark:text-white mb-3">{t('pages.products.category_filter', 'الفئة')}</h4>
             <div className="space-y-2">
               <label className="flex items-center gap-3">
                 <input
@@ -497,7 +501,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                   onChange={() => toggleCategory('thermal')}
                   className="w-4 h-4 rounded text-[#D89F2D] focus:ring-[#D89F2D]"
                 />
-                <span className="text-sm text-gray-700 dark:text-gray-300">عزل حراري</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">{t('pages.products.category_thermal', 'عزل حراري')}</span>
               </label>
               <label className="flex items-center gap-3">
                 <input
@@ -506,13 +510,13 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                   onChange={() => toggleCategory('ppf')}
                   className="w-4 h-4 rounded text-[#D89F2D] focus:ring-[#D89F2D]"
                 />
-                <span className="text-sm text-gray-700 dark:text-gray-300">حماية الطلاء</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">{t('pages.products.category_ppf', 'حماية الطلاء')}</span>
               </label>
             </div>
           </div>
 
           <div>
-            <h4 className="font-bold text-base text-gray-900 dark:text-white mb-3">مستوى العزل</h4>
+            <h4 className="font-bold text-base text-gray-900 dark:text-white mb-3">{t('pages.products.tint_level_filter', 'مستوى العزل')}</h4>
             <div className="space-y-2">
               <label className="flex items-center gap-3">
                 <input
@@ -521,7 +525,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                   onChange={() => toggleTintLevel('50')}
                   className="w-4 h-4 rounded text-[#D89F2D] focus:ring-[#D89F2D]"
                 />
-                <span className="text-sm text-gray-700 dark:text-gray-300">شفاف 50%</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">{t('pages.products.tint_50', 'شفاف 50%')}</span>
               </label>
               <label className="flex items-center gap-3">
                 <input
@@ -530,7 +534,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                   onChange={() => toggleTintLevel('35')}
                   className="w-4 h-4 rounded text-[#D89F2D] focus:ring-[#D89F2D]"
                 />
-                <span className="text-sm text-gray-700 dark:text-gray-300">خفيف العتمة 35%</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">{t('pages.products.tint_35_short', 'خفيف العتمة 35%')}</span>
               </label>
               <label className="flex items-center gap-3">
                 <input
@@ -539,7 +543,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                   onChange={() => toggleTintLevel('20-25')}
                   className="w-4 h-4 rounded text-[#D89F2D] focus:ring-[#D89F2D]"
                 />
-                <span className="text-sm text-gray-700 dark:text-gray-300">متوسط العتمة 20% - 25%</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">{t('pages.products.tint_20_25', 'متوسط العتمة 20% - 25%')}</span>
               </label>
             </div>
           </div>
@@ -553,7 +557,7 @@ export function ProductListPage({ page, source, query, pagination, products: ini
                 className="w-4 h-4 rounded text-[#D89F2D] focus:ring-[#D89F2D]"
               />
               <span className="text-sm font-bold text-gray-800 dark:text-gray-200">
-                متوافق مع إرشادات المرور
+                {t('pages.products.traffic_compliant', 'متوافق مع إرشادات المرور')}
               </span>
             </label>
           </div>
@@ -564,14 +568,14 @@ export function ProductListPage({ page, source, query, pagination, products: ini
               onClick={() => setMobileFiltersOpen(false)}
               className="flex-1 py-3 bg-[#D89F2D] text-neutral-900 font-bold rounded-xl text-center"
             >
-              عرض النتائج ({filteredProducts.length})
+              {t('pages.products.view_results', 'عرض النتائج')} ({filteredProducts.length})
             </button>
             <button
               type="button"
               onClick={resetFilters}
               className="px-4 py-3 bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-gray-300 font-bold rounded-xl"
             >
-              إلغاء
+              {t('pages.products.cancel', 'إلغاء')}
             </button>
           </div>
         </div>

@@ -1,43 +1,8 @@
 import { memo, useRef, useEffect, useState } from 'react';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { product as productApi } from '@salla.sa/twilight-theme-engine/api/product';
 import type { Product } from '@salla.sa/twilight-theme-engine/types';
-import { ProductCardItem, type ProductItem } from '../shared/cards/ProductCardItem';
-
-const FEATURED_PRODUCTS_DATA: ProductItem[] = [
-  {
-    id: 1,
-    title: 'فيلم عزل حراري — VLT 15%',
-    description: 'فيلم عزل حراري متقدم يوفر مستوى مرتفعاً من الحماية وراحة أكبر داخل السيارة.',
-    price: 400,
-    originalPrice: 650,
-    image: '/assets/theme/image_8.webp',
-    url: '#products',
-  },
-  {
-    id: 2,
-    title: 'فيلم عزل حراري — VLT 35%',
-    description: 'فيلم عزل حراري متقدم يوفر توازناً بين تقليل الحرارة والوضوح العالي للرؤية.',
-    price: 500,
-    image: '/assets/theme/image_8.webp',
-    url: '#products',
-  },
-  {
-    id: 3,
-    title: 'فيلم حماية الطلاء — PPF لامع',
-    description: 'حل متقدم لحماية طلاء السيارة من الخدوش والترمل وعوامل الجو القاسية.',
-    price: 700,
-    image: '/assets/theme/image_7.webp',
-    url: '#products',
-  },
-  {
-    id: 4,
-    title: 'فيلم حماية الطلاء — PPF مطفي',
-    description: 'فيلم حماية بمظهر مطفي فريد يحمي الطلاء الأصلي ويمنحه مظهراً رياضياً جذاباً.',
-    price: 800,
-    image: '/assets/theme/image_7.webp',
-    url: '#products',
-  },
-];
+import { ProductCardItem } from '../shared/cards/ProductCardItem';
 
 export interface FeaturedProductsSectionProps {
   data?: {
@@ -50,11 +15,12 @@ export interface FeaturedProductsSectionProps {
 export const FeaturedProductsSection = memo(function FeaturedProductsSection({
   data,
 }: FeaturedProductsSectionProps) {
+  const { t } = useTranslation();
   const sliderRef = useRef<HTMLDivElement>(null);
-  const title = data?.title || 'منتجات مميزة';
+  const title = data?.title || t('blocks.home.featured_products_title', 'منتجات مميزة');
   const viewAllUrl = data?.display_all_url || '#products';
 
-  const [productsList, setProductsList] = useState<(Product | ProductItem)[]>(FEATURED_PRODUCTS_DATA);
+  const [productsList, setProductsList] = useState<Product[]>([]);
 
   useEffect(() => {
     let isMounted = true;
@@ -84,6 +50,8 @@ export const FeaturedProductsSection = memo(function FeaturedProductsSection({
     sliderRef.current.scrollBy({ left: offset, behavior: 'smooth' });
   };
 
+  if (productsList.length === 0) return null;
+
   return (
     <section id="products" className="py-14 lg:py-20 bg-[#FFFDF9] dark:bg-[#1E1E1E] home-screen flex items-center scroll-mt-20">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -100,7 +68,7 @@ export const FeaturedProductsSection = memo(function FeaturedProductsSection({
               href={viewAllUrl}
               className="text-sm sm:text-base font-bold text-[#D89F2D] hover:underline"
             >
-              عرض الكل
+              {t('blocks.home.featured_products_view_all', 'عرض الكل')}
             </a>
 
             {/* Navigation Arrows */}

@@ -12,8 +12,7 @@ import { loyalty } from '@salla.sa/twilight-theme-engine/api/loyalty';
 import { cart } from '@salla.sa/twilight-theme-engine/api/cart';
 import type { CartPageProps } from '@salla.sa/twilight-theme-engine/routes/cart';
 import { CartItem } from './CartItem';
-import { RelatedProducts } from '../product/ProductPage';
-import { ProductInstallBanner } from '../product/ProductInstallBanner';
+import { ProductInstallBanner, RelatedProducts } from '../product';
 
 /**
  * Theme fork of the engine `CartPage`.

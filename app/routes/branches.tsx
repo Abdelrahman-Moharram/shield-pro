@@ -98,12 +98,24 @@ function parseBranches(raw: unknown): BranchItem[] {
 }
 
 export const Route = (createFileRoute as any)('/{-$locale}/branches')({
-  head: () => ({
-    meta: [
-      { title: 'مراكز التركيب المعتمدة | شيلدو برو Shieldo Pro' },
-      { name: 'description', content: 'فروع ومراكز تركيب شيلدو برو المعتمدة في مختلف مدن المملكة.' },
-    ],
-  }),
+  head: ({ params }: { params?: { locale?: string } }) => {
+    const isEn = params?.locale === 'en';
+    return {
+      meta: [
+        {
+          title: isEn
+            ? 'Certified Installation Centers | Shieldo Pro'
+            : 'مراكز التركيب المعتمدة | شيلدو برو Shieldo Pro',
+        },
+        {
+          name: 'description',
+          content: isEn
+            ? 'Shieldo Pro certified installation centers across Saudi Arabia.'
+            : 'فروع ومراكز تركيب شيلدو برو المعتمدة في مختلف مدن المملكة.',
+        },
+      ],
+    };
+  },
   component: BranchesPage,
 });
 
@@ -145,15 +157,15 @@ function BranchesPage() {
 
   const cities = useMemo(() => {
     const unique = Array.from(new Set(branches.map((b) => b.city).filter(Boolean)));
-    return ['الكل', ...unique];
+    return ['all', ...unique];
   }, [branches]);
 
-  const [selectedCity, setSelectedCity] = useState('الكل');
+  const [selectedCity, setSelectedCity] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   const filtered = useMemo(() => {
     return branches.filter((b) => {
-      const matchCity = selectedCity === 'الكل' || b.city === selectedCity;
+      const matchCity = selectedCity === 'all' || b.city === selectedCity;
       const q = searchQuery.trim().toLowerCase();
       const matchSearch =
         !q ||
@@ -174,17 +186,16 @@ function BranchesPage() {
             {t('blocks.header.home', 'الرئيسية')}
           </Link>
           <span>/</span>
-          <span className="text-gray-900 font-bold">مراكز التركيب المعتمدة</span>
+          <span className="text-gray-900 font-bold">{t('pages.branches.title', 'مراكز التركيب المعتمدة')}</span>
         </nav>
 
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-10 sm:mb-12">
           <h1 className="text-2xl sm:text-4xl font-extrabold text-gray-900 tracking-tight mb-3">
-            مراكز التركيب المعتمدة
+            {t('pages.branches.title', 'مراكز التركيب المعتمدة')}
           </h1>
           <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-            أقرب مركز معتمد في مدينتك لتركيب أفلام العزل الحراري وحماية الطلاء بأيدي فنيين
-            محترفين وضمان رسمي.
+            {t('pages.branches.subtitle', 'أقرب مركز معتمد في مدينتك لتركيب أفلام العزل الحراري وحماية الطلاء بأيدي فنيين محترفين وضمان رسمي.')}
           </p>
         </div>
 
@@ -211,13 +222,10 @@ function BranchesPage() {
               />
             </svg>
             <p className="text-gray-400 font-medium text-sm">
-              لم تُضف مراكز تركيب بعد.
+              {t('pages.branches.empty_title', 'لم تُضف مراكز تركيب بعد.')}
             </p>
             <p className="text-gray-400 text-xs mt-1">
-              أضف مراكزك عبر{' '}
-              <strong className="text-gray-600">
-                إعدادات المظهر &rarr; installation_centers
-              </strong>
+              {t('pages.branches.empty_desc', 'أضف مراكزك عبر إعدادات المظهر ← installation_centers')}
             </p>
           </div>
         ) : (
@@ -236,7 +244,7 @@ function BranchesPage() {
                         : 'bg-[#F3F4F6] text-gray-600 hover:bg-gray-200/80'
                     }`}
                   >
-                    {city}
+                    {city === 'all' ? t('pages.branches.all_cities', 'الكل') : city}
                   </button>
                 ))}
               </div>
@@ -245,7 +253,7 @@ function BranchesPage() {
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="ابحث بالحي أو المدينة..."
+                  placeholder={t('pages.branches.search_placeholder', 'ابحث بالحي أو المدينة...')}
                   className="w-full h-10 bg-[#F9FAFB] border border-gray-200 focus:border-[#CCA352] rounded-xl ps-9 pe-3 text-xs text-gray-800 placeholder-gray-400 focus:outline-none transition-all"
                 />
                 <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3 text-gray-400">
@@ -366,7 +374,7 @@ function BranchesPage() {
                                 d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
                               />
                             </svg>
-                            <span>الاتجاهات</span>
+                            <span>{t('pages.branches.directions', 'الاتجاهات')}</span>
                           </a>
                         )}
                         {branch.whatsapp && (
@@ -410,7 +418,7 @@ function BranchesPage() {
               </div>
             ) : (
               <div className="bg-white rounded-2xl p-12 text-center border border-gray-200 mb-12">
-                <p className="text-gray-500 font-medium text-sm">لم يتم العثور على فروع مطابقة.</p>
+                <p className="text-gray-500 font-medium text-sm">{t('pages.branches.no_results', 'لم يتم العثور على فروع مطابقة.')}</p>
               </div>
             )}
           </>

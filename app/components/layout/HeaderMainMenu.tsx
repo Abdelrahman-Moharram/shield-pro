@@ -187,6 +187,8 @@ function MenuItems({ items, root }: { items: MenuItem[]; root: boolean }) {
  * opens rather than with the page.
  */
 function MenuEntry({ item, root }: { item: MenuItem; root: boolean }) {
+  const { t } = useTranslation();
+  const title = t(item.title, item.title);
   const children = item.children ?? [];
   const hasChildren = children.length > 0;
   const productIds = hasChildren ? menuProductIds(item) : [];
@@ -241,7 +243,8 @@ function MenuEntry({ item, root }: { item: MenuItem; root: boolean }) {
       }
 
       e.preventDefault();
-      const el = document.getElementById(targetId);
+      const doc = e.currentTarget.ownerDocument;
+      const el = doc?.getElementById(targetId);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         window.history.pushState(null, '', targetHash);
@@ -281,7 +284,7 @@ function MenuEntry({ item, root }: { item: MenuItem; root: boolean }) {
     >
       {isMore ? (
         <a href="#" role="button" aria-haspopup="true" onClick={preventJump}>
-          <span>{item.title}</span>
+          <span>{title}</span>
         </a>
       ) : isAnchor ? (
         <a
@@ -290,7 +293,7 @@ function MenuEntry({ item, root }: { item: MenuItem; root: boolean }) {
           onClick={handleAnchorClick}
         >
           <span className="relative inline-flex flex-col items-center">
-            {item.title}
+            {title}
             {isActive && (
               <span className="s-menu-active-pill mt-1 h-1 w-4 rounded-full bg-primary" />
             )}
@@ -305,7 +308,7 @@ function MenuEntry({ item, root }: { item: MenuItem; root: boolean }) {
             : {})}
         >
           <span className="relative inline-flex flex-col items-center">
-            {item.title}
+            {title}
             {isActive && (
               <span className="s-menu-active-pill mt-1 h-1 w-4 rounded-full bg-primary" />
             )}

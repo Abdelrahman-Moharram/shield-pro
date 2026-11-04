@@ -1,24 +1,22 @@
 import { memo } from 'react';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 
 export interface ProductListHeroProps {
   onExploreClick?: () => void;
 }
 
 export const ProductListHero = memo(function ProductListHero({ onExploreClick }: ProductListHeroProps) {
-  const handleScroll = () => {
+  const { t, isRTL } = useTranslation();
+  const handleScroll = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (onExploreClick) {
+      e.preventDefault();
       onExploreClick();
-      return;
-    }
-    const target = document.getElementById('catalog-content');
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
 
   return (
     <section
-      dir="rtl"
+      dir={isRTL ? 'rtl' : 'ltr'}
       className="relative bg-secondary text-white overflow-hidden py-10 lg:py-16 mb-8 lg:mb-12 rounded-b-[32px] lg:rounded-b-[48px] shadow-lg"
     >
       {/* Decorative Subtle Lightning Background Vector */}
@@ -42,18 +40,18 @@ export const ProductListHero = memo(function ProductListHero({ onExploreClick }:
           {/* Text Content */}
           <div className="lg:col-span-7 text-center lg:text-right flex flex-col items-center lg:items-start">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-4 leading-tight">
-              منتجات <span className="text-[#D89F2D]">شيلدو بــــرو</span>
+              {t('pages.products.hero_heading_prefix', 'منتجات')} <span className="text-[#D89F2D]">{t('pages.products.hero_heading_suffix', 'شيلدو بــــرو')}</span>
             </h1>
             <p className="text-base sm:text-lg text-gray-300 max-w-xl mb-8 leading-relaxed font-normal">
-              اكتشف حلولنا المتقدمة لعزل الحرارة وحماية طلاء سيارتك، مصممة لتوفر أعلى أداء ومظهر فاخر يدوم.
+              {t('pages.products.hero_desc', 'اكتشف حلولنا المتقدمة لعزل الحرارة وحماية طلاء سيارتك، مصممة لتوفر أعلى أداء ومظهر فاخر يدوم.')}
             </p>
-            <button
-              type="button"
+            <a
+              href="#catalog-content"
               onClick={handleScroll}
               className="inline-flex items-center justify-center px-8 py-3.5 rounded-xl font-black text-sm sm:text-base bg-[#D89F2D] text-neutral-900 hover:bg-[#c58f25] active:scale-95 transition-all shadow-md hover:shadow-lg cursor-pointer"
             >
-              اكتشف منتجاتنا
-            </button>
+              {t('pages.products.hero_btn', 'اكتشف منتجاتنا')}
+            </a>
           </div>
 
           {/* 3D Graphic (Car on Pedestal with Rolls, Shield, and Badges) */}
@@ -61,7 +59,7 @@ export const ProductListHero = memo(function ProductListHero({ onExploreClick }:
             <div className="relative w-full max-w-[380px] sm:max-w-[460px] lg:max-w-[520px]">
               <img
                 src="/assets/theme/products_hero_3d.webp"
-                alt="منتجات شيلدو برو - حماية وعزل السيارات"
+                alt={t('pages.products.hero_img_alt', 'منتجات شيلدو برو - حماية وعزل السيارات')}
                 className="w-full h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.5)] transition-transform duration-700 hover:scale-105"
                 loading="eager"
               />

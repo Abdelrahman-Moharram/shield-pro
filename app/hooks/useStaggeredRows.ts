@@ -43,25 +43,26 @@ export function useStaggeredRows(
     let cancelPaint: (() => void) | undefined;
     let observer: MutationObserver | undefined;
 
+    const root = typeof document !== 'undefined' ? document : null;
     const release = () => {
       timer = setTimeout(() => {
         // Force a reflow so the web component's closed state is painted before
         // `.is-in` flips it; otherwise a just-inserted row never transitions.
-        void document.querySelector<HTMLElement>(containerSelector)?.offsetWidth;
+        void root?.querySelector<HTMLElement>(containerSelector)?.offsetWidth;
         cancelPaint = afterNextPaint(() => setRowsIn(true));
       }, ROWS_IN_DELAY_MS);
     };
 
-    if (document.querySelector(rowSelector)) {
+    if (root?.querySelector(rowSelector)) {
       release();
     } else {
       observer = new MutationObserver(() => {
-        if (document.querySelector(rowSelector)) {
+        if (root?.querySelector(rowSelector)) {
           observer?.disconnect();
           release();
         }
       });
-      observer.observe(document.body, { childList: true, subtree: true });
+      if (root?.body) observer.observe(root.body, { childList: true, subtree: true });
     }
 
     return () => {

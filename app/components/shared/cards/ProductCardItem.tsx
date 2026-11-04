@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { RiyalIcon } from '../../icons';
 import type { Product } from '@salla.sa/twilight-theme-engine/types';
 
@@ -31,6 +32,7 @@ function isSallaProduct(product: Product | ProductItem): product is Product {
 }
 
 export function ProductCardItem({ product, className = '' }: ProductCardItemProps) {
+  const { t, isRTL } = useTranslation();
   const [isAdding, setIsAdding] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
@@ -105,8 +107,8 @@ export function ProductCardItem({ product, className = '' }: ProductCardItemProp
   return (
     <div
       data-testid="product-card"
-      className={`group relative bg-white dark:bg-[#252525] rounded-2xl p-3.5 sm:p-4 border border-gray-100 dark:border-neutral-800 shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between h-full text-right ${className}`}
-      dir="rtl"
+      className={`group relative bg-white dark:bg-[#252525] rounded-2xl p-3.5 sm:p-4 border border-gray-100 dark:border-neutral-800 shadow-[0_4px_20px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_30px_rgba(0,0,0,0.12)] transition-all duration-300 hover:-translate-y-1.5 flex flex-col justify-between h-full text-start ${className}`}
+      dir={isRTL ? 'rtl' : 'ltr'}
     >
       {/* Product Image */}
       <a
@@ -130,7 +132,7 @@ export function ProductCardItem({ product, className = '' }: ProductCardItemProp
                   ? 'bg-[#2B6CB0] text-white'
                   : 'bg-[#D89F2D] text-neutral-900';
             return (
-              <span className={`absolute top-2.5 right-2.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1 ${badgeClasses}`}>
+              <span className={`absolute top-2.5 start-2.5 text-[11px] font-bold px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1 ${badgeClasses}`}>
                 {customBadge.type === 'discount' && (
                   <svg className="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
                     <path d="M2 2a1 1 0 011-1h4.586a1 1 0 01.707.293l6.414 6.414a1 1 0 010 1.414l-4.586 4.586a1 1 0 01-1.414 0L2.293 8.707A1 1 0 012 8V2zm3 2a1 1 0 100 2 1 1 0 000-2z" />
@@ -143,11 +145,11 @@ export function ProductCardItem({ product, className = '' }: ProductCardItemProp
 
           if (resolvedOriginalPrice) {
             return (
-              <span className="absolute top-2.5 right-2.5 bg-[#E53E3E] text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
+              <span className="absolute top-2.5 start-2.5 bg-[#E53E3E] text-white text-[11px] font-bold px-2 py-0.5 rounded-full shadow-md flex items-center gap-1">
                 <svg className="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
                   <path d="M2 2a1 1 0 011-1h4.586a1 1 0 01.707.293l6.414 6.414a1 1 0 010 1.414l-4.586 4.586a1 1 0 01-1.414 0L2.293 8.707A1 1 0 012 8V2zm3 2a1 1 0 100 2 1 1 0 000-2z" />
                 </svg>
-                خصم
+                {t('pages.products.discount_label', 'خصم')}
               </span>
             );
           }
@@ -186,13 +188,13 @@ export function ProductCardItem({ product, className = '' }: ProductCardItemProp
           type="button"
           onClick={handleAddToCart}
           disabled={isAdding}
-          aria-label={isSuccess ? 'تمت الإضافة' : 'أضف للسلة'}
+          aria-label={isSuccess ? t('pages.products.added_label', 'تمت الإضافة') : t('pages.products.add_to_cart', 'أضف للسلة')}
           className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm ${
             isSuccess
               ? 'bg-emerald-600 text-white'
               : 'bg-[#D89F2D] hover:bg-[#c58f25] text-neutral-900'
           }`}
-          title={hasOptions ? 'اختر المواصفات' : 'أضف إلى السلة'}
+          title={hasOptions ? t('pages.products.select_options_label', 'اختر المواصفات') : t('pages.products.add_to_cart', 'أضف إلى السلة')}
         >
           {isAdding ? (
             <svg className="w-4 h-4 animate-spin text-neutral-900" viewBox="0 0 24 24" fill="none">

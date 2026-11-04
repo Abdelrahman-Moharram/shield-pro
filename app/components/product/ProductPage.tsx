@@ -33,6 +33,7 @@ export function RelatedProducts({
   categoryId?: number;
   title: string;
 }) {
+  const { t } = useTranslation();
   const [source, setSource] = useState<'related' | 'categories' | 'latest'>('related');
   const [isEmpty, setIsEmpty] = useState(false);
 
@@ -64,7 +65,7 @@ export function RelatedProducts({
         <RenderWhenVisible estimatedHeight="0px">
           <div className="container py-10">
             <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 text-start">
-              {title || 'منتجات قد تناسبك'}
+              {title || t('pages.products.similar_products', 'منتجات قد تناسبك')}
             </h2>
             <ProductsSlider
               key={source}

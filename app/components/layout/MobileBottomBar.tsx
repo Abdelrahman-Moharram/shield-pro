@@ -60,11 +60,13 @@ function getCartSdk(): CartSdk | undefined {
 
 type Tab = 'home' | 'categories' | 'search' | 'cart' | 'account';
 
-const searchModal = (): Element | null => document.querySelector('salla-modal.s-search-modal');
+const rootDoc = (): Document | null => (typeof document !== 'undefined' ? document : null);
+
+const searchModal = (): Element | null => rootDoc()?.querySelector('salla-modal.s-search-modal') ?? null;
 
 const userMenu = (): (HTMLElement & { opened?: boolean }) | null =>
-  (document.querySelector('salla-user-menu.header-action') ??
-    document.querySelector('salla-user-menu')) as (HTMLElement & { opened?: boolean }) | null;
+  (rootDoc()?.querySelector('salla-user-menu.header-action') ??
+    rootDoc()?.querySelector('salla-user-menu') ?? null) as (HTMLElement & { opened?: boolean }) | null;
 
 /** Open the Salla search modal — the same event the header's search button fires. */
 function openSearch() {
@@ -123,8 +125,8 @@ function activeTab(
   return null;
 }
 
-const isSearchOpen = () => !!document.querySelector('salla-modal.s-search-modal[visible]');
-const isMenuOpen = () => !!document.querySelector('.s-user-menu-toggler.opened');
+const isSearchOpen = () => !!rootDoc()?.querySelector('salla-modal.s-search-modal[visible]');
+const isMenuOpen = () => !!rootDoc()?.querySelector('.s-user-menu-toggler.opened');
 
 /**
  * Reflect a DOM condition into React state. Used for the two overlays the bar

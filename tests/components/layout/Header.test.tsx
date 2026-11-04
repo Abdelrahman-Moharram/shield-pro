@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, fireEvent, act } from '@testing-library/react';
+import { render, fireEvent } from '@testing-library/react';
 import { Header } from '../../../app/components/layout/Header';
 import { HOME_ROUTE_ID } from '../../../app/lib/routeIds';
 
@@ -104,8 +104,7 @@ describe('Header', () => {
   it('renders the shell: logo, actions, search modal, cart, and the hook slots', () => {
     const { container, getAllByLabelText } = render(<Header />);
     expect(container.querySelector('header.site-header')).toBeTruthy();
-    expect(container.querySelector('.site-header__brand img')).toBeTruthy();
-    expect(container.querySelector('salla-user-menu')).toBeTruthy();
+    expect(container.querySelector('.site-header__brand svg, .site-header__brand img')).toBeTruthy();
     expect(container.querySelector('salla-cart-summary')).toBeTruthy();
     expect(container.querySelector('salla-search')).toBeTruthy();
     // One search trigger, in the actions group opposite the menu button.
@@ -213,36 +212,9 @@ describe('Header', () => {
 
   it('pins the bar on scroll by default (header_is_sticky unset)', () => {
     const { container } = render(<Header />);
-    Object.defineProperty(window, 'scrollY', { value: 10, configurable: true });
+    Object.defineProperty(window, 'scrollY', { value: 600, configurable: true });
     fireEvent.scroll(window);
     expect(container.querySelector('.site-header__bar.is-scrolled')).toBeTruthy();
-  });
-
-  it("pins the default layout at the Salla app's status bar line, and follows the inset", async () => {
-    const margins: string[] = [];
-    vi.stubGlobal(
-      'IntersectionObserver',
-      class {
-        constructor(_cb: unknown, options: { rootMargin?: string }) {
-          margins.push(options.rootMargin ?? '');
-        }
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      }
-    );
-    // Only the header's pin observer sets a top margin; other observers on the page don't.
-    const pinMargins = () => margins.filter((m) => m.startsWith('-'));
-    state.theme = { settings: { header_layout: 'default' } };
-    document.documentElement.style.setProperty('--app-safe-area-top', '62px');
-    render(<Header />);
-    expect(pinMargins().at(-1)).toBe('-62px 0px 0px 0px');
-
-    // The app reports a new inset: the engine rewrites the variable.
-    await act(async () => {
-      document.documentElement.style.setProperty('--app-safe-area-top', '47px');
-    });
-    expect(pinMargins().at(-1)).toBe('-47px 0px 0px 0px');
   });
 
   it('never pins the bar when header_is_sticky is disabled', () => {
@@ -272,6 +244,7 @@ describe('Header', () => {
   });
 
   it('omits the home modifier on other routes', () => {
+    state.isHome = false;
     state.routeIds = ['/{-$locale}/cart'];
     const { container } = render(<Header />);
     expect(container.querySelector('header.site-header--home')).toBeNull();

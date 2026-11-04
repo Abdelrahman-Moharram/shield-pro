@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 
 export interface InstallationCentersData {
   title: string;
@@ -31,11 +32,12 @@ export interface InstallationCentersSectionProps {
 export const InstallationCentersSection = memo(function InstallationCentersSection({
   data,
 }: InstallationCentersSectionProps) {
+  const { t } = useTranslation();
   const content = {
-    title: (data?.title as string) || DEFAULT_DATA.title,
-    descriptionPrefix: (data?.descriptionPrefix as string) || DEFAULT_DATA.descriptionPrefix,
-    brandHighlight: (data?.brandHighlight as string) || DEFAULT_DATA.brandHighlight,
-    buttonText: (data?.btnname as string) || (data?.buttonText as string) || DEFAULT_DATA.buttonText,
+    title: (data?.title as string) || t('blocks.home.centers_title', DEFAULT_DATA.title),
+    descriptionPrefix: (data?.descriptionPrefix as string) || t('blocks.home.centers_desc_prefix', DEFAULT_DATA.descriptionPrefix),
+    brandHighlight: (data?.brandHighlight as string) || t('blocks.home.centers_brand_highlight', DEFAULT_DATA.brandHighlight),
+    buttonText: (data?.btnname as string) || (data?.buttonText as string) || t('blocks.home.centers_btn', DEFAULT_DATA.buttonText),
     buttonUrl: (data?.url as string) || (data?.buttonUrl as string) || DEFAULT_DATA.buttonUrl,
     bgImage: (data?.bgImage as string) || (data?.image as string) || DEFAULT_DATA.bgImage,
   };

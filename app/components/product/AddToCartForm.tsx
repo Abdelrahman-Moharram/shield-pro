@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { hapticImpact } from '@salla.sa/twilight-theme-engine/native-app';
 import { getActiveCurrency } from '@salla.sa/twilight-theme-engine/api/client';
 import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
@@ -18,16 +19,16 @@ interface AddToCartFormProps {
 /**
  * Renders one product option field matching the type returned by Salla backend.
  */
-function renderProductOptionField(opt: ProductOption, priceCurrency: any) {
+function renderProductOptionField(opt: ProductOption, priceCurrency: any, t: (key: string, def: string) => string) {
   const values = opt.details || opt.values || [];
   const type = (opt.type || '').toLowerCase();
   const baseInput = 'w-full h-11 bg-[#F3F4F6] hover:bg-gray-200/80 focus:bg-white border border-transparent focus:border-[#CCA352] rounded-xl px-4 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none transition-all box-border';
 
   if (type === 'text' || type === 'string') {
-    return <input type="text" name={`options[${opt.id}]`} required={opt.required} placeholder={`أدخل ${opt.name}`} className={baseInput} />;
+    return <input type="text" name={`options[${opt.id}]`} required={opt.required} placeholder={`${t('pages.products.enter_option', 'أدخل')} ${opt.name}`} className={baseInput} />;
   }
   if (type === 'textarea') {
-    return <textarea name={`options[${opt.id}]`} required={opt.required} rows={2} placeholder={`أدخل ${opt.name}...`} className="w-full min-h-[44px] bg-[#F3F4F6] hover:bg-gray-200/80 focus:bg-white border border-transparent focus:border-[#CCA352] rounded-xl py-2.5 px-4 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none transition-all resize-none box-border" />;
+    return <textarea name={`options[${opt.id}]`} required={opt.required} rows={2} placeholder={`${t('pages.products.enter_option', 'أدخل')} ${opt.name}...`} className="w-full min-h-[44px] bg-[#F3F4F6] hover:bg-gray-200/80 focus:bg-white border border-transparent focus:border-[#CCA352] rounded-xl py-2.5 px-4 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none transition-all resize-none box-border" />;
   }
   if (type === 'date') {
     return <input type="date" name={`options[${opt.id}]`} required={opt.required} className={baseInput + ' cursor-pointer'} />;
@@ -62,7 +63,7 @@ function renderProductOptionField(opt: ProductOption, priceCurrency: any) {
             <label key={val.id} className="relative flex items-center justify-center cursor-pointer" title={val.name}>
               <input type="radio" name={`options[${opt.id}]`} value={val.id} required={opt.required} className="sr-only peer" />
               {imgUrl ? (
-                <img src={imgUrl} alt={val.name} className="w-10 h-10 object-cover rounded-lg border border-gray-200 peer-checked:border-[#CCA352] peer-checked:ring-2 peer-checked:ring-[#CCA352] transition-all" />
+                <img src={imgUrl} alt={val.name} width={40} height={40} className="w-10 h-10 object-cover rounded-lg border border-gray-200 peer-checked:border-[#CCA352] peer-checked:ring-2 peer-checked:ring-[#CCA352] transition-all" />
               ) : (
                 <span className="px-3 py-1.5 rounded-lg border border-gray-200 peer-checked:border-[#CCA352] peer-checked:bg-[#CCA352]/10 text-xs font-medium">{val.name}</span>
               )}
@@ -109,7 +110,7 @@ function renderProductOptionField(opt: ProductOption, priceCurrency: any) {
         required={opt.required}
         className="w-full h-11 appearance-none bg-[#F3F4F6] hover:bg-gray-200/80 focus:bg-white border border-transparent focus:border-[#CCA352] rounded-xl ps-4 pe-10 text-xs sm:text-sm text-gray-700 font-medium focus:outline-none transition-all cursor-pointer box-border"
       >
-        <option value="" disabled>اختر</option>
+        <option value="" disabled>{t('pages.products.select_option', 'اختر')}</option>
         {values.map((val) => {
           const extraPrice = (val as any).additional_price ?? (val as any).price;
           return (
@@ -134,6 +135,7 @@ export function AddToCartForm({
   formStartSlot,
   formEndSlot,
 }: AddToCartFormProps) {
+  const { t } = useTranslation();
   const formRef = useRef<HTMLFormElement>(null);
   const [quantity, setQuantity] = useState(1);
   const priceCurrency = getActiveCurrency(product.currency);
@@ -142,10 +144,10 @@ export function AddToCartForm({
 
   // Traffic compliance text — shown only on automotive tint products, customizable in theme settings
   const trafficTitle =
-    (settings.product_traffic_compliance_title as string) || 'التوافق مع إرشادات المرور';
+    (settings.product_traffic_compliance_title as string) || t('pages.products.traffic_compliance_title', 'التوافق مع إرشادات المرور');
   const trafficText =
     (settings.product_traffic_compliance_text as string) ||
-    'هذا المنتج متوافق مع إرشادات المرور السعودي، يرجى مراجعة أنظمة المرور المحلية قبل الاستخدام.';
+    t('pages.products.traffic_compliance_text', 'هذا المنتج متوافق مع إرشادات المرور السعودي، يرجى مراجعة أنظمة المرور المحلية قبل الاستخدام.');
 
   const getCombinedSpecs = () => {
     const s1 = getProductCustomFields(product);
@@ -282,7 +284,7 @@ export function AddToCartForm({
                     <span>{opt.name}</span>
                     {opt.required && <span className="text-red-500 font-bold">*</span>}
                   </label>
-                  {renderProductOptionField(opt, priceCurrency)}
+                  {renderProductOptionField(opt, priceCurrency, t)}
                 </div>
               );
             })}
@@ -299,7 +301,7 @@ export function AddToCartForm({
           disabled={product.is_out_of_stock}
           className="flex-1 h-12 rounded-lg bg-[#CCA352] hover:bg-[#b89143] active:bg-[#a68037] text-[#1a1a1a] font-bold text-sm transition-all shadow-sm text-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
         >
-          {product.add_to_cart_label || 'أضف للسلة'}
+          {product.add_to_cart_label || t('pages.products.add_to_cart', 'أضف للسلة')}
         </button>
 
         <button
@@ -308,7 +310,7 @@ export function AddToCartForm({
           onClick={handleBuyNow}
           className="flex-1 h-12 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 text-gray-900 font-bold text-sm transition-all shadow-sm text-center disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center"
         >
-          اشتر الآن
+          {t('pages.products.buy_now', 'اشتر الآن')}
         </button>
 
         {!product.is_hidden_quantity && product.type !== 'booking' && (

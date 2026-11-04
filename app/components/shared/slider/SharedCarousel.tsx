@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { ScrollCarousel, type ScrollCarouselProps } from '../../common/ScrollCarousel';
 
 export interface SharedCarouselProps extends ScrollCarouselProps {
@@ -15,11 +16,15 @@ export function SharedCarousel({
   actionText,
   actionHref,
   children,
-  prevLabel = 'السابق',
-  nextLabel = 'التالي',
+  prevLabel,
+  nextLabel,
   autoPlay = false,
   className = '',
 }: SharedCarouselProps) {
+  const { t } = useTranslation();
+  const resolvedPrev = prevLabel ?? t('common.elements.prev', 'السابق');
+  const resolvedNext = nextLabel ?? t('common.elements.next', 'التالي');
+
   return (
     <div className="w-full">
       {(title || actionText) && (
@@ -46,8 +51,8 @@ export function SharedCarousel({
       )}
 
       <ScrollCarousel
-        prevLabel={prevLabel}
-        nextLabel={nextLabel}
+        prevLabel={resolvedPrev}
+        nextLabel={resolvedNext}
         autoPlay={autoPlay}
         className={className}
       >

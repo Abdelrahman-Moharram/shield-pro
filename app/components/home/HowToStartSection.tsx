@@ -1,10 +1,13 @@
 import { memo } from 'react';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 
 export interface StepItem {
   id: number | string;
   number: number | string;
-  title: string;
-  description: string;
+  titleKey: string;
+  titleDefault: string;
+  descKey: string;
+  descDefault: string;
 }
 
 // 1. Isolated data defined above the component
@@ -12,31 +15,39 @@ const STEPS_DATA: StepItem[] = [
   {
     id: 1,
     number: '1',
-    title: 'اختر الحل',
-    description: 'حدد نوع الحماية التي تحتاجها.',
+    titleKey: 'blocks.home.how_to_start_s1_title',
+    titleDefault: 'اختر الحل',
+    descKey: 'blocks.home.how_to_start_s1_desc',
+    descDefault: 'حدد نوع الحماية التي تحتاجها.',
   },
   {
     id: 2,
     number: '2',
-    title: 'اختر المنتج',
-    description: 'قارن المنتجات واختر ما يناسب احتياجك.',
+    titleKey: 'blocks.home.how_to_start_s2_title',
+    titleDefault: 'اختر المنتج',
+    descKey: 'blocks.home.how_to_start_s2_desc',
+    descDefault: 'قارن المنتجات واختر ما يناسب احتياجك.',
   },
   {
     id: 3,
     number: '3',
-    title: 'أكمل طلبك',
-    description: 'أضف المنتج إلى السلة وأكمل للدفع.',
+    titleKey: 'blocks.home.how_to_start_s3_title',
+    titleDefault: 'أكمل طلبك',
+    descKey: 'blocks.home.how_to_start_s3_desc',
+    descDefault: 'أضف المنتج إلى السلة وأكمل للدفع.',
   },
   {
     id: 4,
     number: '4',
-    title: 'استلم منتجك',
-    description: 'استلم طلبك وفق خيارات التوصيل المتاحة.',
+    titleKey: 'blocks.home.how_to_start_s4_title',
+    titleDefault: 'استلم منتجك',
+    descKey: 'blocks.home.how_to_start_s4_desc',
+    descDefault: 'استلم طلبك وفق خيارات التوصيل المتاحة.',
   },
 ];
 
 // 2. Sub-card component created inside the file
-function StepCard({ step }: { step: StepItem }) {
+function StepCard({ step }: { step: { id: number | string; number: number | string; title: string; description: string } }) {
   return (
     <div
       className="relative rounded-2xl p-5 pt-8 sm:p-6 sm:pt-9 min-h-[140px] sm:min-h-[150px] flex flex-col justify-end text-start transition-transform duration-300 hover:-translate-y-1 shadow-[0_4px_20px_rgba(0,0,0,0.035)] overflow-hidden"
@@ -72,15 +83,15 @@ function StepCard({ step }: { step: StepItem }) {
 export interface HowToStartProps {
   data?: {
     title?: string;
-    items?: StepItem[];
+    items?: Array<{ id: number | string; number: number | string; title: string; description: string }>;
     [key: string]: unknown;
   };
 }
 
 // 3. Main component looping over the data
 export const HowToStartSection = memo(function HowToStartSection({ data }: HowToStartProps) {
-  const title = (data?.title as string) || 'كيف تبدأ ؟';
-  const steps = (data?.items as StepItem[]) || STEPS_DATA;
+  const { t } = useTranslation();
+  const title = (data?.title as string) || t('blocks.home.how_to_start_title', 'كيف تبدأ ؟');
 
   return (
     <section id="how-it-works" className="w-full py-10 sm:py-14 lg:py-16 bg-white scroll-mt-20 relative">
@@ -91,9 +102,19 @@ export const HowToStartSection = memo(function HowToStartSection({ data }: HowTo
         </h2>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-          {steps.map((step) => (
-            <StepCard key={step.id} step={step} />
-          ))}
+          {data?.items
+            ? data.items.map((step) => <StepCard key={step.id} step={step} />)
+            : STEPS_DATA.map((step) => (
+                <StepCard
+                  key={step.id}
+                  step={{
+                    id: step.id,
+                    number: step.number,
+                    title: t(step.titleKey, step.titleDefault),
+                    description: t(step.descKey, step.descDefault),
+                  }}
+                />
+              ))}
         </div>
       </div>
     </section>

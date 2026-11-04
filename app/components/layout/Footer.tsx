@@ -1,22 +1,23 @@
 import { memo, useState } from 'react';
 import { Link } from '@salla.sa/twilight-theme-engine/common';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { ShieldoLogo } from '../shared/icons/BrandIcons';
 
 export interface FooterLink {
-  label: string;
+  labelKey: string;
   url: string;
 }
 
 export interface FooterSection {
-  title: string;
+  titleKey: string;
   links: FooterLink[];
 }
 
 export interface ContactInfo {
-  title: string;
+  titleKey: string;
   phone: string;
   phoneUrl: string;
-  address: string;
+  addressKey: string;
   email: string;
   emailUrl: string;
 }
@@ -29,9 +30,9 @@ export interface SocialItem {
 
 // 1. Isolated Footer Data defined above the component
 const FOOTER_DATA = {
-  description: 'نحن نقدم أفضل حلول حماية السيارات في المملكة العربية السعودية بتقنيات عالمية.',
-  newsletterPlaceholder: 'ادخل بريدك الإلكتروني لتلقي آخر مستجداتنا وعروضنا',
-  copyright: 'جميع الحقوق محفوظة 2026 Shieldo Pro. ©',
+  descriptionKey: 'blocks.footer.description',
+  newsletterPlaceholderKey: 'blocks.footer.newsletter_placeholder',
+  copyrightKey: 'blocks.footer.copyright',
   socials: [
     { name: 'LinkedIn', icon: 'linkedin' as const, url: '#' },
     { name: 'X', icon: 'x' as const, url: '#' },
@@ -39,35 +40,35 @@ const FOOTER_DATA = {
     { name: 'Facebook', icon: 'facebook' as const, url: '#' },
   ],
   contact: {
-    title: 'تواصل معنا',
+    titleKey: 'blocks.footer.contact_title',
     phone: '0592052080',
     phoneUrl: 'tel:0592052080',
-    address: '25 شارع الأمير فيصل بن فهد، الخبر',
+    addressKey: 'blocks.footer.contact_address',
     email: 'info@shieldopro.com',
     emailUrl: 'mailto:info@shieldopro.com',
   },
   sections: [
     {
-      title: 'المنتجات',
+      titleKey: 'blocks.footer.sec_products',
       links: [
-        { label: 'أفلام العزل الحراري', url: '/products?category=thermal' },
-        { label: 'أفلام حماية الطلاء', url: '/products?category=ppf' },
+        { labelKey: 'blocks.footer.link_thermal', url: '/products?category=thermal' },
+        { labelKey: 'blocks.footer.link_ppf', url: '/products?category=ppf' },
       ],
     },
     {
-      title: 'المساعدة',
+      titleKey: 'blocks.footer.sec_help',
       links: [
-        { label: 'الأسئلة الشائعة', url: '/faq' },
-        { label: 'الشحن والتوصيل', url: '#shipping' },
-        { label: 'الاستبدال والاسترجاع', url: '#returns' },
+        { labelKey: 'blocks.footer.link_faq', url: '/faq' },
+        { labelKey: 'blocks.footer.link_shipping', url: '#shipping' },
+        { labelKey: 'blocks.footer.link_returns', url: '#returns' },
       ],
     },
     {
-      title: 'شيلدو بــــرو',
+      titleKey: 'blocks.footer.sec_brand',
       links: [
-        { label: 'من نحن', url: '#about' },
-        { label: 'الضمان', url: '/warranty' },
-        { label: 'مراكز التركيب المعتمدة', url: '/branches' },
+        { labelKey: 'blocks.footer.link_about', url: '#about' },
+        { labelKey: 'blocks.footer.link_warranty', url: '/warranty' },
+        { labelKey: 'blocks.footer.link_branches', url: '/branches' },
       ],
     },
   ],
@@ -156,11 +157,12 @@ export interface FooterProps {
 }
 
 export const Footer = memo(function Footer({ data }: FooterProps) {
+  const { t, isRTL } = useTranslation();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
-  const description = (data?.description as string) || FOOTER_DATA.description;
-  const copyright = (data?.copyright as string) || FOOTER_DATA.copyright;
+  const description = (data?.description as string) || t(FOOTER_DATA.descriptionKey, 'نحن نقدم أفضل حلول حماية السيارات في المملكة العربية السعودية بتقنيات عالمية.');
+  const copyright = (data?.copyright as string) || t(FOOTER_DATA.copyrightKey, 'جميع الحقوق محفوظة 2026 Shieldo Pro. ©');
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,7 +175,7 @@ export const Footer = memo(function Footer({ data }: FooterProps) {
   return (
     <footer
       id="footer"
-      dir="rtl"
+      dir={isRTL ? 'rtl' : 'ltr'}
       className="relative w-full text-white overflow-hidden"
       style={{
         background: 'linear-gradient(180deg, #3B3B3B 0%, #2B2B2B 100%)',
@@ -196,7 +198,7 @@ export const Footer = memo(function Footer({ data }: FooterProps) {
         {/* Main Footer Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10">
           {/* Col 1: Brand Info & Newsletter (Right side in RTL) */}
-          <div className="lg:col-span-5 flex flex-col items-start text-right">
+          <div className="lg:col-span-5 flex flex-col items-start text-start">
             <div className="mb-4">
               <ShieldoLogo light={true} className="h-10 w-auto" />
             </div>
@@ -228,14 +230,14 @@ export const Footer = memo(function Footer({ data }: FooterProps) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={subscribed ? 'شكراً لاشتراكك معنا!' : FOOTER_DATA.newsletterPlaceholder}
+                placeholder={subscribed ? t('blocks.footer.newsletter_subscribed', 'شكراً لاشتراكك معنا!') : t(FOOTER_DATA.newsletterPlaceholderKey, 'ادخل بريدك الإلكتروني لتلقي آخر مستجداتنا وعروضنا')}
                 disabled={subscribed}
                 className="w-full pl-14 pr-4 py-3 rounded-xl bg-white/10 border border-white/10 text-white placeholder-gray-400 text-xs sm:text-sm focus:outline-none focus:border-[#D89F2D] transition-colors"
                 required
               />
               <button
                 type="submit"
-                aria-label="Subscribe"
+                aria-label={t('blocks.footer.subscribe_aria', 'Subscribe')}
                 className="absolute left-1.5 top-1.5 bottom-1.5 px-3.5 bg-[#D89F2D] hover:bg-[#c58f25] text-neutral-900 rounded-lg flex items-center justify-center transition-colors shadow-sm cursor-pointer"
               >
                 <SendIcon className="w-4 h-4 rotate-180" />
@@ -244,28 +246,28 @@ export const Footer = memo(function Footer({ data }: FooterProps) {
           </div>
 
           {/* Nav Columns: المنتجات - المساعدة - شيلدو برو */}
-          <div className="lg:col-span-4 grid grid-cols-3 gap-4 sm:gap-6 text-right">
+          <div className="lg:col-span-4 grid grid-cols-3 gap-4 sm:gap-6 text-start">
             {FOOTER_DATA.sections.map((section) => (
-              <div key={section.title}>
+              <div key={section.titleKey}>
                 <h3 className="text-base sm:text-lg font-bold text-white mb-4 sm:mb-5 tracking-tight">
-                  {section.title}
+                  {t(section.titleKey)}
                 </h3>
                 <ul className="space-y-2.5 sm:space-y-3">
                   {section.links.map((link) => (
-                    <li key={link.label}>
+                    <li key={link.labelKey}>
                       {link.url.startsWith('/') ? (
                         <Link
                           to={link.url}
                           className="text-xs sm:text-sm text-gray-300 hover:text-[#D89F2D] transition-colors font-normal inline-block"
                         >
-                          {link.label}
+                          {t(link.labelKey)}
                         </Link>
                       ) : (
                         <a
                           href={link.url}
                           className="text-xs sm:text-sm text-gray-300 hover:text-[#D89F2D] transition-colors font-normal inline-block"
                         >
-                          {link.label}
+                          {t(link.labelKey)}
                         </a>
                       )}
                     </li>
@@ -276,9 +278,9 @@ export const Footer = memo(function Footer({ data }: FooterProps) {
           </div>
 
           {/* Col 3: Contact Us (Left side in RTL) */}
-          <div className="lg:col-span-3 text-right">
+          <div className="lg:col-span-3 text-start">
             <h3 className="text-base sm:text-lg font-bold text-white mb-4 sm:mb-5 tracking-tight">
-              {FOOTER_DATA.contact.title}
+              {t(FOOTER_DATA.contact.titleKey, 'تواصل معنا')}
             </h3>
             <ul className="space-y-3.5 text-xs sm:text-sm text-gray-300 font-normal">
               {/* Phone */}
@@ -300,7 +302,7 @@ export const Footer = memo(function Footer({ data }: FooterProps) {
                 <span className="text-[#D89F2D] shrink-0">
                   <PinIcon className="w-4 h-4" />
                 </span>
-                <span>{FOOTER_DATA.contact.address}</span>
+                <span>{t(FOOTER_DATA.contact.addressKey, '25 شارع الأمير فيصل بن فهد، الخبر')}</span>
               </li>
 
               {/* Email */}

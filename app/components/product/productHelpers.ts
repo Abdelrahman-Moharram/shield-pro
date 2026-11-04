@@ -201,7 +201,10 @@ export function getProductCategoryNames(product: Product): string[] {
  * - Tags prefixed with "ميزة:" or "feature:"
  * - Description section under "المميزات"
  */
-export function getProductFeatures(product: Product): ProductFeatureItem[] {
+export function getProductFeatures(
+  product: Product,
+  t: (key: string, def: string) => string = (_, def) => def
+): ProductFeatureItem[] {
   const p = product as any;
   const list: ProductFeatureItem[] = [];
   const seenTitles = new Set<string>();
@@ -292,7 +295,7 @@ export function getProductFeatures(product: Product): ProductFeatureItem[] {
 
   // 4. Automatic category-based features (derived dynamically when no manual features are set)
   if (list.length === 0) {
-    const catFeatures = getProductCategoryFeatures(product);
+    const catFeatures = getProductCategoryFeatures(product, t);
     for (const f of catFeatures) {
       add(f.title, f.desc, f.icon);
     }
@@ -309,7 +312,10 @@ export function getProductFeatures(product: Product): ProductFeatureItem[] {
  * - "عزل متوسط" / "خصوصية" -> "خصوصية مع وضوح"
  * - "طلاء / PPF" -> "حماية متقدمة للطلاء"
  */
-export function getProductCategoryFeatures(product: Product): ProductFeatureItem[] {
+export function getProductCategoryFeatures(
+  product: Product,
+  t: (key: string, def: string) => string = (_, def) => def
+): ProductFeatureItem[] {
   const catNames = getProductCategoryNames(product);
   const text = [
     ...catNames,
@@ -331,8 +337,8 @@ export function getProductCategoryFeatures(product: Product): ProductFeatureItem
     text.includes('ceramic')
   ) {
     features.push({
-      title: 'تخفيض فوري للحرارة',
-      desc: 'يقلل بشكل كبير من حرارة المقصورة لراحة أكبر أثناء القيادة.',
+      title: t('pages.products.feat_heat_title', 'تخفيض فوري للحرارة'),
+      desc: t('pages.products.feat_heat_desc', 'يقلل بشكل كبير من حرارة المقصورة لراحة أكبر أثناء القيادة.'),
       icon: 'heat',
     });
   }
@@ -345,8 +351,8 @@ export function getProductCategoryFeatures(product: Product): ProductFeatureItem
     text.includes('تعتيم')
   ) {
     features.push({
-      title: 'خصوصية مع وضوح',
-      desc: 'يوفر الخصوصية التي تحتاجها دون التأثير على وضوح الرؤية ليلاً.',
+      title: t('pages.products.feat_privacy_title', 'خصوصية مع وضوح'),
+      desc: t('pages.products.feat_privacy_desc', 'يوفر الخصوصية التي تحتاجها دون التأثير على وضوح الرؤية ليلاً.'),
       icon: 'privacy',
     });
   }
@@ -361,8 +367,8 @@ export function getProductCategoryFeatures(product: Product): ProductFeatureItem
     text.includes('uv')
   ) {
     features.push({
-      title: 'عزل ضوء وحماية من الشمس',
-      desc: 'حماية فائقة من وهج الشمس والأشعة فوق البنفسجية لراحة العين والحفاظ على مقصورة سيارتك.',
+      title: t('pages.products.feat_sun_title', 'عزل ضوء وحماية من الشمس'),
+      desc: t('pages.products.feat_sun_desc', 'حماية فائقة من وهج الشمس والأشعة فوق البنفسجية لراحة العين والحفاظ على مقصورة سيارتك.'),
       icon: 'uv',
     });
   }
@@ -375,8 +381,8 @@ export function getProductCategoryFeatures(product: Product): ProductFeatureItem
     text.includes('حماية الطلاء')
   ) {
     features.push({
-      title: 'حماية متقدمة لطلاء السيارة',
-      desc: 'طبقة شفافة متينة تحمي طلاء السيارة من الخدوش والحصى والعوامل الجوية.',
+      title: t('pages.products.feat_shield_title', 'حماية متقدمة لطلاء السيارة'),
+      desc: t('pages.products.feat_shield_desc', 'طبقة شفافة متينة تحمي طلاء السيارة من الخدوش والحصى والعوامل الجوية.'),
       icon: 'shield',
     });
   }

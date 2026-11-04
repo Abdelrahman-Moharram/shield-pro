@@ -1,35 +1,44 @@
 import { memo } from 'react';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import {
   FeatureChipIcon,
   FeatureShieldIcon,
   FeatureSpeedIcon,
   FeatureMedalIcon,
 } from '../icons';
-import { FeatureCardItem, type FeatureItem } from '../shared/cards/FeatureCardItem';
+import { FeatureCardItem } from '../shared/cards/FeatureCardItem';
 
-const WHY_US_FEATURES: FeatureItem[] = [
+const WHY_US_FEATURES = [
   {
     id: 1,
-    title: 'تقنية متقدمة',
-    description: 'حلول هندسية مبتكرة بأحدث التقنيات لضمان أداء عالٍ وجمالية مثالية.',
+    titleKey: 'blocks.home.why_us_f1_title',
+    titleDefault: 'تقنية متقدمة',
+    descKey: 'blocks.home.why_us_f1_desc',
+    descDefault: 'حلول هندسية مبتكرة بأحدث التقنيات لضمان أداء عالٍ وجمالية مثالية.',
     Icon: FeatureChipIcon,
   },
   {
     id: 2,
-    title: 'حماية موثوقة',
-    description: 'ضمان الجودة العالية في كل منتج لتحمي سيارتك بثقة وموثوقية.',
+    titleKey: 'blocks.home.why_us_f2_title',
+    titleDefault: 'حماية موثوقة',
+    descKey: 'blocks.home.why_us_f2_desc',
+    descDefault: 'ضمان الجودة العالية في كل منتج لتحمي سيارتك بثقة وموثوقية.',
     Icon: FeatureShieldIcon,
   },
   {
     id: 3,
-    title: 'أداء طويل الأمد',
-    description: 'نتائج تدوم لسنوات بفضل اختبارات دقيقة ومعايير أداء صارمة.',
+    titleKey: 'blocks.home.why_us_f3_title',
+    titleDefault: 'أداء طويل الأمد',
+    descKey: 'blocks.home.why_us_f3_desc',
+    descDefault: 'نتائج تدوم لسنوات بفضل اختبارات دقيقة ومعايير أداء صارمة.',
     Icon: FeatureSpeedIcon,
   },
   {
     id: 4,
-    title: 'ضمان للمنتج',
-    description: 'راحة بال كاملة مع ضمان موثوق يدعمك ويحمي استثمارك.',
+    titleKey: 'blocks.home.why_us_f4_title',
+    titleDefault: 'ضمان للمنتج',
+    descKey: 'blocks.home.why_us_f4_desc',
+    descDefault: 'راحة بال كاملة مع ضمان موثوق يدعمك ويحمي استثمارك.',
     Icon: FeatureMedalIcon,
   },
 ];
@@ -42,6 +51,7 @@ export interface WhyUsSectionProps {
 }
 
 export const WhyUsSection = memo(function WhyUsSection({ data }: WhyUsSectionProps) {
+  const { t } = useTranslation();
   return (
     <section
       id="why-us"
@@ -57,13 +67,21 @@ export const WhyUsSection = memo(function WhyUsSection({ data }: WhyUsSectionPro
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
         {/* Section Heading */}
         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#2A2A2A] dark:text-white tracking-tight mb-12 sm:mb-16 text-start">
-          لماذا <span className="text-[#D89F2D]">شيلدو بــــرو ؟</span>
+          {t('blocks.home.why_us_heading_prefix', 'لماذا')} <span className="text-[#D89F2D]">{t('blocks.home.why_us_heading_suffix', 'شيلدو بــــرو ؟')}</span>
         </h2>
 
         {/* 4 Feature Items Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 lg:gap-10">
           {WHY_US_FEATURES.map((feature) => (
-            <FeatureCardItem key={feature.id} feature={feature} />
+            <FeatureCardItem
+              key={feature.id}
+              feature={{
+                id: feature.id,
+                Icon: feature.Icon,
+                title: t(feature.titleKey, feature.titleDefault),
+                description: t(feature.descKey, feature.descDefault),
+              }}
+            />
           ))}
         </div>
       </div>

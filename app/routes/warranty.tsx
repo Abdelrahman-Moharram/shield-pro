@@ -34,7 +34,18 @@ async function activate(serial: string, base?: string): Promise<Warranty> {
 }
 
 export const Route = (createFileRoute as any)('/{-$locale}/warranty')({
-  head: () => ({ meta: [{ title: 'تفعيل الضمان | شيلدو برو Shieldo Pro' }] }),
+  head: ({ params }: { params?: { locale?: string } }) => {
+    const isEn = params?.locale === 'en';
+    return {
+      meta: [
+        {
+          title: isEn
+            ? 'Activate Warranty | Shieldo Pro'
+            : 'تفعيل الضمان | شيلدو برو Shieldo Pro',
+        },
+      ],
+    };
+  },
   component: WarrantyPage,
 });
 
@@ -55,7 +66,7 @@ const ERR_MAP: Record<string, [string, string]> = {
 };
 
 function WarrantyPage() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { settings } = useTheme();
   const [serial, setSerial] = useState('');
   const [busy, setBusy] = useState(false);
@@ -84,7 +95,7 @@ function WarrantyPage() {
 
   if (warranty) {
     const date = (iso: string) =>
-      new Date(iso).toLocaleDateString(`${document.documentElement.lang || 'ar'}-u-nu-latn`, {
+      new Date(iso).toLocaleDateString(`${locale || 'ar'}-u-nu-latn`, {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
@@ -118,7 +129,7 @@ function WarrantyPage() {
 
   return (
     <Card>
-      <img src="/assets/theme/warranty_shield_3d.webp" alt="" className="mx-auto mb-8 h-36 w-auto" />
+      <img src="/assets/theme/warranty_shield_3d.webp" alt="" width={528} height={658} className="mx-auto mb-8 h-36 w-auto" />
       <h1 className="mb-3 text-3xl font-extrabold text-secondary">{t('pages.warranty.title', 'فعل ضمان منتجك')}</h1>
       <p className="mb-10 text-lg text-gray-500">{t('pages.warranty.subtitle', 'لتفعيل الضمان أدخل الرقم التسلسلي الموجود على منتج.')}</p>
 

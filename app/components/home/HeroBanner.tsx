@@ -1,3 +1,4 @@
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { PrimaryButton } from '../shared/buttons/PrimaryButton';
 
 export interface HeroSlideData {
@@ -22,6 +23,7 @@ export interface HeroBannerProps {
 }
 
 export function HeroBanner({ data }: HeroBannerProps) {
+  const { t } = useTranslation();
   const firstSlide = data?.slides?.[0] || data?.slider_banner?.[0];
 
   // Sanitize: filter out Salla default demo wireframe placeholders
@@ -47,7 +49,7 @@ export function HeroBanner({ data }: HeroBannerProps) {
       ? firstSlide.title
       : data?.title && !data.title.includes('روّج')
         ? data.title
-        : 'حماية تدوم وراحة تستحقها سيارتك';
+        : t('blocks.home.hero_title', 'حماية تدوم وراحة تستحقها سيارتك');
 
   const isDemoDesc =
     !firstSlide?.description ||
@@ -59,10 +61,10 @@ export function HeroBanner({ data }: HeroBannerProps) {
       ? firstSlide.description
       : data?.description && !data.description.includes('التي تود إبرازها')
         ? data.description
-        : 'حلول متقدمة لعزل الحرارة وحماية طلاء سيارتك، مصممة لتمنحك راحة أكبر وتحافظ على مظهر سيارتك.';
+        : t('blocks.home.hero_description', 'حلول متقدمة لعزل الحرارة وحماية طلاء سيارتك، مصممة لتمنحك راحة أكبر وتحافظ على مظهر سيارتك.');
 
   const buttonText =
-    firstSlide?.btnname || data?.btnname || 'اكتشف منتجات الحماية';
+    firstSlide?.btnname || data?.btnname || t('blocks.home.hero_btn', 'اكتشف منتجات الحماية');
   const buttonUrl = firstSlide?.url || data?.url || '#products';
 
   return (

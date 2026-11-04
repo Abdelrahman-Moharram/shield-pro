@@ -245,7 +245,7 @@ export function Header({ navOpen: navOpenProp, onNavOpenChange }: HeaderProps = 
                 size="sm"
                 className="hidden sm:inline-flex text-xs md:text-sm font-bold px-4 py-2 rounded-xl text-[#2B2B2B] shadow-sm hover:shadow"
               >
-                تسوق الآن
+                {t('blocks.header.shop_now', 'تسوق الآن')}
               </PrimaryButton>
             </div>
           </div>

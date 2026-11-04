@@ -37,6 +37,9 @@ vi.mock('@salla.sa/twilight-components-react/offer', () => ({ SallaOffer: () => 
 vi.mock('@salla.sa/twilight-components-react/cart-item-offers', () => ({
   SallaCartItemOffers: () => null,
 }));
+vi.mock('../../../app/components/product/ProductPage', () => ({
+  RelatedProducts: () => null,
+}));
 
 vi.mock('@salla.sa/twilight-theme-engine/hooks', () => ({
   HookSlot: () => null,

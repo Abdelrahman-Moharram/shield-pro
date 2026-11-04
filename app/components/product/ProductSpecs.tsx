@@ -1,4 +1,5 @@
 import type { Product } from '@salla.sa/twilight-theme-engine/types';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
 import { useEffect, useState } from 'react';
 import { getProductCustomFields, type CustomFieldItem } from './productHelpers';
@@ -13,6 +14,7 @@ interface ProductSpecsProps {
  * All data from Salla backend custom fields / metadata. Returns null if empty.
  */
 export function ProductSpecs({ product, initialProduct }: ProductSpecsProps) {
+  const { t } = useTranslation();
   const { theme } = useTwilight();
   const settings = (theme?.settings || {}) as Record<string, any>;
 
@@ -91,7 +93,7 @@ export function ProductSpecs({ product, initialProduct }: ProductSpecsProps) {
   return (
     <section className="product-specs mb-12 sm:mb-16 text-start">
       <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-5 text-start">
-        المواصفات الفنية
+        {t('pages.products.specs_title', 'المواصفات الفنية')}
       </h2>
       <div className="bg-white border border-gray-200/80 rounded-2xl p-4 sm:p-6 shadow-sm">
         <div className="grid grid-cols-1 sm:grid-cols-6 gap-3 sm:gap-4">

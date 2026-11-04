@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 
 export interface WarrantyBannerData {
   title: string;
@@ -26,10 +27,11 @@ export interface WarrantyBannerProps {
 }
 
 export const WarrantyBanner = memo(function WarrantyBanner({ data }: WarrantyBannerProps) {
+  const { t } = useTranslation();
   const content = {
-    title: (data?.title as string) || DEFAULT_DATA.title,
-    description: (data?.description as string) || DEFAULT_DATA.description,
-    buttonText: (data?.btnname as string) || (data?.buttonText as string) || DEFAULT_DATA.buttonText,
+    title: (data?.title as string) || t('blocks.home.warranty_banner_title', DEFAULT_DATA.title),
+    description: (data?.description as string) || t('blocks.home.warranty_banner_desc', DEFAULT_DATA.description),
+    buttonText: (data?.btnname as string) || (data?.buttonText as string) || t('blocks.home.warranty_banner_btn', DEFAULT_DATA.buttonText),
     buttonUrl: (data?.url as string) || (data?.buttonUrl as string) || DEFAULT_DATA.buttonUrl,
     image: (data?.image as string) || DEFAULT_DATA.image,
   };
