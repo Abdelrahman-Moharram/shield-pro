@@ -60,7 +60,7 @@
         "auto_play": true,
         "slides": [
           {
-            "image": "/assets/theme/hero_car_transparent.png",
+            "image": "/assets/theme/hero_car_transparent.webp",
             "title": "حماية تدوم وراحة تستحقها سيارتك",
             "description": "حلول متقدمة لعزل الحرارة وحماية طلاء سيارتك، مصممة لتمنحك راحة أكبر وتحافظ على مظهر سيارتك.",
             "btnname": "اكتشف منتجات الحماية",
@@ -80,7 +80,7 @@
         "auto_play": true,
         "slides": [
           {
-            "image": "/assets/theme/hero_car_transparent.png",
+            "image": "/assets/theme/hero_car_transparent.webp",
             "title": "حماية تدوم وراحة تستحقها سيارتك",
             "description": "حلول متقدمة لعزل الحرارة وحماية طلاء سيارتك، مصممة لتمنحك راحة أكبر وتحافظ على مظهر سيارتك.",
             "btnname": "اكتشف منتجات الحماية",
@@ -127,7 +127,7 @@
         "description": "حماية متقدمة تساعد على الحفاظ على مظهر الطلاء ومقاومته للخدوش والعوامل الخارجية.",
         "btnname": "اكتشف أفلام حماية الطلاء",
         "url": "#products",
-        "image": "/assets/theme/shield_banner_3d.png"
+        "image": "/assets/theme/shield_banner_3d.webp"
       }
     },
     {
@@ -148,7 +148,7 @@
         "brandHighlight": "شيلدو بــــرو",
         "btnname": "عرض مراكز التركيب",
         "url": "#installers",
-        "image": "/assets/theme/image_9.png"
+        "image": "/assets/theme/image_9.webp"
       }
     },
     {
@@ -160,7 +160,7 @@
         "description": "فعّل ضمان منتجك باستخدام الرقم التسلسلي الموجود على المنتج.",
         "btnname": "تفعيل الضمان",
         "url": "#warranty",
-        "image": "/assets/theme/warranty_shield_3d.png"
+        "image": "/assets/theme/warranty_shield_3d.webp"
       }
     },
     {

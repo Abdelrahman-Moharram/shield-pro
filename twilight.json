@@ -617,7 +617,7 @@
           "item_label": "صورة",
           "value": [
             {
-              "slides.image": "/assets/theme/hero_car_transparent.png",
+              "slides.image": "/assets/theme/hero_car_transparent.webp",
               "slides.title": "حماية تدوم وراحة تستحقها سيارتك",
               "slides.description": "حلول متقدمة لعزل الحرارة وحماية طلاء سيارتك، مصممة لتمنحك راحة أكبر وتحافظ على مظهر سيارتك.",
               "slides.btnname": "اكتشف منتجات الحماية",
@@ -817,7 +817,7 @@
           "item_label": "صورة",
           "value": [
             {
-              "slides.image": "/assets/theme/hero_car_transparent.png",
+              "slides.image": "/assets/theme/hero_car_transparent.webp",
               "slides.title": "حماية تدوم وراحة تستحقها سيارتك",
               "slides.description": "حلول متقدمة لعزل الحرارة وحماية طلاء سيارتك، مصممة لتمنحك راحة أكبر وتحافظ على مظهر سيارتك.",
               "slides.btnname": "اكتشف منتجات الحماية",
@@ -2115,7 +2115,7 @@
       ]
     },
     {
-      "key": "f7f5d264-1b68-4e9c-d37a-9235b8c65e05",
+      "key": "f7f5d264-1b68-4e9c-a37a-9235b8c65e05",
       "title": {
         "ar": "لماذا شيلدو برو (ميزات المتجر)",
         "en": "Why Choose Us (Store Features)"
@@ -2179,7 +2179,7 @@
           "type": "string",
           "format": "image",
           "label": "صورة الدرع ثلاثي الأبعاد",
-          "value": "/assets/theme/shield_banner_3d.png",
+          "value": "/assets/theme/shield_banner_3d.webp",
           "required": false
         }
       ]
@@ -2257,13 +2257,13 @@
           "type": "string",
           "format": "image",
           "label": "صورة الخلفية",
-          "value": "/assets/theme/image_9.png",
+          "value": "/assets/theme/image_9.webp",
           "required": false
         }
       ]
     },
     {
-      "key": "e6e4c153-0a57-4d8b-c26f-8124a7b54d04",
+      "key": "e6e4c153-0a57-4d8b-a26f-8124a7b54d04",
       "title": {
         "ar": "بانر ضمان المنتج",
         "en": "Product Warranty Banner"
@@ -2308,7 +2308,7 @@
           "type": "string",
           "format": "image",
           "label": "صورة شعار الضمان",
-          "value": "/assets/theme/warranty_shield_3d.png",
+          "value": "/assets/theme/warranty_shield_3d.webp",
           "required": false
         }
       ]

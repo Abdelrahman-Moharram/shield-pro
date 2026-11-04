@@ -16,7 +16,7 @@ const DEFAULT_DATA: InstallationCentersData = {
   brandHighlight: 'شيلدو بــــرو',
   buttonText: 'عرض مراكز التركيب',
   buttonUrl: '#installers',
-  bgImage: '/assets/theme/image_9.png',
+  bgImage: '/assets/theme/image_9.webp',
 };
 
 export interface InstallationCentersSectionProps {

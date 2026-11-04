@@ -10,7 +10,7 @@ const FEATURED_PRODUCTS_DATA: ProductItem[] = [
     description: 'فيلم عزل حراري متقدم يوفر مستوى مرتفعاً من الحماية وراحة أكبر داخل السيارة.',
     price: 400,
     originalPrice: 650,
-    image: '/assets/theme/image_8.png',
+    image: '/assets/theme/image_8.webp',
     url: '#products',
   },
   {
@@ -18,7 +18,7 @@ const FEATURED_PRODUCTS_DATA: ProductItem[] = [
     title: 'فيلم عزل حراري — VLT 35%',
     description: 'فيلم عزل حراري متقدم يوفر توازناً بين تقليل الحرارة والوضوح العالي للرؤية.',
     price: 500,
-    image: '/assets/theme/image_8.png',
+    image: '/assets/theme/image_8.webp',
     url: '#products',
   },
   {
@@ -26,7 +26,7 @@ const FEATURED_PRODUCTS_DATA: ProductItem[] = [
     title: 'فيلم حماية الطلاء — PPF لامع',
     description: 'حل متقدم لحماية طلاء السيارة من الخدوش والترمل وعوامل الجو القاسية.',
     price: 700,
-    image: '/assets/theme/image_7.png',
+    image: '/assets/theme/image_7.webp',
     url: '#products',
   },
   {
@@ -34,7 +34,7 @@ const FEATURED_PRODUCTS_DATA: ProductItem[] = [
     title: 'فيلم حماية الطلاء — PPF مطفي',
     description: 'فيلم حماية بمظهر مطفي فريد يحمي الطلاء الأصلي ويمنحه مظهراً رياضياً جذاباً.',
     price: 800,
-    image: '/assets/theme/image_7.png',
+    image: '/assets/theme/image_7.webp',
     url: '#products',
   },
 ];

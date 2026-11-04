@@ -14,7 +14,7 @@ const DEFAULT_DATA: WarrantyBannerData = {
   description: 'فعّل ضمان منتجك باستخدام الرقم التسلسلي الموجود على المنتج.',
   buttonText: 'تفعيل الضمان',
   buttonUrl: '#warranty',
-  image: '/assets/theme/warranty_shield_3d.png',
+  image: '/assets/theme/warranty_shield_3d.webp',
 };
 
 export interface WarrantyBannerProps {

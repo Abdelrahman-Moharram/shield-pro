@@ -118,7 +118,7 @@ function WarrantyPage() {
 
   return (
     <Card>
-      <img src="/assets/theme/warranty_shield_3d.png" alt="" className="mx-auto mb-8 h-36 w-auto" />
+      <img src="/assets/theme/warranty_shield_3d.webp" alt="" className="mx-auto mb-8 h-36 w-auto" />
       <h1 className="mb-3 text-3xl font-extrabold text-secondary">{t('pages.warranty.title', 'فعل ضمان منتجك')}</h1>
       <p className="mb-10 text-lg text-gray-500">{t('pages.warranty.subtitle', 'لتفعيل الضمان أدخل الرقم التسلسلي الموجود على منتج.')}</p>
 

@@ -18,7 +18,7 @@ const SERVICES_DATA: ServiceCard[] = [
     description: 'تقليل الحرارة وحماية المقصورة من الأشعة الضارة.',
     buttonText: 'استكشف أفلام العزل',
     url: '#products',
-    image: '/assets/theme/image_6.png',
+    image: '/assets/theme/image_6.webp',
     buttonVariant: 'gold',
   },
   {
@@ -27,7 +27,7 @@ const SERVICES_DATA: ServiceCard[] = [
     description: 'حماية طلاء السيارة من الخدوش والعوامل الخارجية.',
     buttonText: 'استكشف أفلام حماية الطلاء',
     url: '#products',
-    image: '/assets/theme/image_5.png',
+    image: '/assets/theme/image_5.webp',
     imagePosition: 'object-[center_72%]',
     buttonVariant: 'sand',
   },

@@ -60,7 +60,7 @@ export const ProductListHero = memo(function ProductListHero({ onExploreClick }:
           <div className="lg:col-span-5 flex justify-center items-center">
             <div className="relative w-full max-w-[380px] sm:max-w-[460px] lg:max-w-[520px]">
               <img
-                src="/assets/theme/products_hero_3d.png"
+                src="/assets/theme/products_hero_3d.webp"
                 alt="منتجات شيلدو برو - حماية وعزل السيارات"
                 className="w-full h-auto object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.5)] transition-transform duration-700 hover:scale-105"
                 loading="eager"

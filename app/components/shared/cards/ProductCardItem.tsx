@@ -53,7 +53,7 @@ export function ProductCardItem({ product, className = '' }: ProductCardItemProp
     : product.originalPrice;
 
   const resolvedImage = isSalla
-    ? product.image?.url || (product as any).main_image || '/assets/theme/image_8.png'
+    ? product.image?.url || (product as any).main_image || '/assets/theme/image_8.webp'
     : product.image;
 
   const resolvedUrl = isSalla

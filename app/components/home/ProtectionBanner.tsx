@@ -15,7 +15,7 @@ const BANNER_ITEMS = {
   description   : 'حماية متقدمة تساعد على الحفاظ على مظهر الطلاء ومقاومته للخدوش والعوامل الخارجية.',
   buttonText    : 'اكتشف أفلام حماية الطلاء',
   buttonUrl     : '#products',
-  image         : '/assets/theme/shield_banner_3d.png',
+  image         : '/assets/theme/shield_banner_3d.webp',
 }
 export interface ProtectionBannerProps {
   data?: {

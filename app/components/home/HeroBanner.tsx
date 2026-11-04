@@ -33,7 +33,7 @@ export function HeroBanner({ data }: HeroBannerProps) {
     firstSlide.image.includes('placeholder');
 
   const carImage = isDemoImage
-    ? '/assets/theme/hero_car_transparent.png'
+    ? '/assets/theme/hero_car_transparent.webp'
     : firstSlide.image;
 
   const isDemoTitle =
