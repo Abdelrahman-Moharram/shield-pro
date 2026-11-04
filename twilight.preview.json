@@ -21,6 +21,7 @@
     "slider_background_size": "contain",
     "imageZoom": false,
     "product_install_banner_url": "/branches",
+    "warranty_api_url": "http://localhost:3000/api/v1",
     "installation_centers": [
       {
         "name": "مركز شيلدو برو - فرع خريص",
@@ -32,6 +33,20 @@
         "mapUrl": "https://maps.app.goo.gl",
         "hours": "السبت - الخميس: 9:00 ص - 10:30 م",
         "services": "عزل حراري نانو سيراميك، حماية PPF، نانو سيراميك"
+      }
+    ],
+    "faq_items": [
+      {
+        "question": "كيف يمكنني تفعيل ضمان منتجي؟",
+        "answer": "لتفعيل الضمان، انتقل إلى صفحة \"الضمانات\" في حسابك، ثم أدخل الرقم التسلسلي للمنتج المطبوع على العلبة أو الفاتورة. اتبع الخطوات الموضحة لإتمام التفعيل.",
+        "question_en": "How can I activate my product warranty?",
+        "answer_en": "To activate the warranty, go to the \"Warranties\" page in your account, then enter the product serial number printed on the package or invoice. Follow the instructions to complete activation."
+      },
+      {
+        "question": "ما هي سياسة الاسترجاع الخاصة بكم؟",
+        "answer": "يمكنك طلب استرجاع المنتجات غير المستخدمة في عبوتها الأصلية خلال 14 يوماً من تاريخ الاستلام.",
+        "question_en": "What is your return policy?",
+        "answer_en": "You can request a return for unused items in their original packaging within 14 days of receipt."
       }
     ]
   },

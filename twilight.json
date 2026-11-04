@@ -531,6 +531,33 @@
         { "id": "hours",    "type": "string", "format": "text",     "label": "ساعات العمل",       "required": false },
         { "id": "services", "type": "string", "format": "textarea", "label": "الخدمات (مفصولة بفاصلة)", "required": false }
       ]
+    },
+    {
+      "id": "faq_items",
+      "type": "collection",
+      "format": "collection",
+      "label": "الأسئلة الشائعة",
+      "item_label": "سؤال",
+      "description": "أضف الأسئلة الشائعة وإجاباتها هنا — ستظهر في صفحة /faq",
+      "value": [],
+      "required": false,
+      "minLength": 0,
+      "maxLength": 50,
+      "fields": [
+        { "id": "question",    "type": "string", "format": "text",     "label": "السؤال (عربي)",        "required": true  },
+        { "id": "answer",      "type": "string", "format": "textarea", "label": "الإجابة (عربي)",       "required": true  },
+        { "id": "question_en", "type": "string", "format": "text",     "label": "السؤال (إنجليزي)",     "required": false },
+        { "id": "answer_en",   "type": "string", "format": "textarea", "label": "الإجابة (إنجليزي)",    "required": false }
+      ]
+    },
+    {
+      "id": "warranty_api_url",
+      "type": "string",
+      "format": "text",
+      "label": "رابط خادم الضمان",
+      "description": "مثال: https://api.example.com/api/v1",
+      "value": "",
+      "required": false
     }
   ],
   "components": [

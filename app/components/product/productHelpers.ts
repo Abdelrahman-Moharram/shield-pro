@@ -434,3 +434,13 @@ export function isAutomotiveTintProduct(product: Product): boolean {
   const keywords = ['عزل', 'تظليل', 'حراري', 'vlt', 'window film', 'tint', 'ppf', 'ضوء', 'سيراميك', 'طلاء'];
   return keywords.some((k) => text.includes(k));
 }
+
+export function getProductFilterData(product: Product): { category: string; tintLevel: string } {
+  const text = [product.name || '', ...getProductCategoryNames(product), ...(product.tags || []).map((t: any) => (typeof t === 'string' ? t : t?.name || ''))].join(' ').toLowerCase();
+  const category = /ppf|طلاء|ترمل/.test(text) ? 'ppf' : /عزل|حرار|vlt|تظليل/.test(text) ? 'thermal' : '';
+  const vlt = getProductCustomFields(product).find((f) => f.label.toUpperCase().includes('VLT'));
+  const match = vlt?.value.match(/\d+/) || (product.name || '').match(/VLT\s*(\d+)/i);
+  const n = match ? parseInt(match[1] || match[0], 10) : NaN;
+  const tintLevel = isNaN(n) ? '' : n >= 50 ? '50' : n >= 30 ? '35' : n >= 20 ? '20-25' : '10-15';
+  return { category, tintLevel };
+}

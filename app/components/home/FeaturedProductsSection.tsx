@@ -85,8 +85,8 @@ export const FeaturedProductsSection = memo(function FeaturedProductsSection({
   };
 
   return (
-    <section id="products" dir="rtl" className="py-14 lg:py-20 bg-[#FFFDF9] dark:bg-[#1E1E1E] scroll-mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="products" className="py-14 lg:py-20 bg-[#FFFDF9] dark:bg-[#1E1E1E] home-screen flex items-center scroll-mt-20">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8 sm:mb-10">
           <div>

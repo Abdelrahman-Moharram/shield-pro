@@ -2,34 +2,35 @@ import { useState, type FormEvent, type ReactNode } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { Link } from '@salla.sa/twilight-theme-engine/common';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
+import { useTheme } from '@salla.sa/twilight-theme-engine/hooks/useTheme';
 import { PrimaryButton } from '../components/shared/buttons/PrimaryButton';
 
 /** What the backend returns for an approved serial number. */
 interface Warranty {
-  number: string;
-  product: string;
+  warrantyNumber: string;
+  productName: string;
   activatedAt: string; // ISO date
   expiresAt: string; // ISO date
 }
 
-/** POST { serial } → Warranty (200) or an error status. Backend: see the chat notes. */
-const ACTIVATE_URL = '/api/warranty/activate';
-
-async function activate(serial: string): Promise<Warranty> {
-  // Design preview: `pnpm dev` approves any serial so both screens can be reviewed.
-  if (import.meta.env.DEV) {
+async function activate(serial: string, base?: string): Promise<Warranty> {
+  if (import.meta.env.DEV && !base) {
     const now = new Date();
     const end = new Date(now);
     end.setFullYear(now.getFullYear() + 10);
-    return { number: 'WR-902341', product: 'Shieldo Ultra PPF', activatedAt: now.toISOString(), expiresAt: end.toISOString() };
+    return {
+      warrantyNumber: 'WR-902341', productName: 'Shieldo Ultra PPF',
+      activatedAt: now.toISOString(), expiresAt: end.toISOString(),
+    };
   }
-  const res = await fetch(ACTIVATE_URL, {
+  if (!base) throw new Error('no_api_url');
+  const res = await fetch(`${base}/warranty/activate`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ serial }),
   });
   if (!res.ok) throw new Error(String(res.status));
-  return res.json();
+  return (await res.json()).data;
 }
 
 export const Route = (createFileRoute as any)('/{-$locale}/warranty')({
@@ -47,25 +48,39 @@ function Card({ children }: { children: ReactNode }) {
   );
 }
 
+const ERR_MAP: Record<string, [string, string]> = {
+  '404': ['error_not_found', 'الرقم التسلسلي غير موجود، تأكد منه وحاول مرة أخرى.'],
+  '409': ['error_used', 'تم تفعيل ضمان هذا الرقم التسلسلي من قبل.'],
+  '429': ['error_rate', 'محاولات كثيرة، حاول مرة أخرى بعد دقيقة.'],
+};
+
 function WarrantyPage() {
   const { t } = useTranslation();
+  const { settings } = useTheme();
   const [serial, setSerial] = useState('');
   const [busy, setBusy] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [warranty, setWarranty] = useState<Warranty | null>(null);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    setFailed(false);
+    setError(null);
     try {
-      setWarranty(await activate(serial.trim()));
-    } catch {
-      setFailed(true);
+      // ThemeSettings type is static; dynamic settings from twilight.json require a cast
+      const base = (settings as any)?.warranty_api_url?.trim().replace(/\/+$/, '');
+      setWarranty(await activate(serial.trim(), base));
+    } catch (e: any) {
+      setError(e?.message || 'error');
     } finally {
       setBusy(false);
     }
   };
+
+  const [errKey, defMsg] = (error && ERR_MAP[error]) ?? [
+    'error', 'تعذر تفعيل الضمان، تأكد من الرقم التسلسلي وحاول مرة أخرى.',
+  ];
+  const errMsg = error && t(`pages.warranty.${errKey}` as any, defMsg);
 
   if (warranty) {
     const date = (iso: string) =>
@@ -75,8 +90,8 @@ function WarrantyPage() {
         year: 'numeric',
       });
     const rows: [string, string, string?][] = [
-      [t('pages.warranty.number', 'رقم الضمان'), warranty.number],
-      [t('pages.warranty.product', 'اسم المنتج'), warranty.product],
+      [t('pages.warranty.number', 'رقم الضمان'), warranty.warrantyNumber],
+      [t('pages.warranty.product', 'اسم المنتج'), warranty.productName],
       [t('pages.warranty.activated_at', 'تاريخ التفعيل'), date(warranty.activatedAt)],
       [t('pages.warranty.expires_at', 'تاريخ انتهاء الضمان'), date(warranty.expiresAt), 'text-primary'],
     ];
@@ -124,10 +139,8 @@ function WarrantyPage() {
             <rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><path d="M14 14h3v3m4 0v4h-4m-3-1v-3" />
           </svg>
         </div>
-        <p className={`mt-3 text-center text-xs ${failed ? 'text-danger' : 'text-gray-500'}`}>
-          {failed
-            ? t('pages.warranty.error', 'تعذر تفعيل الضمان، تأكد من الرقم التسلسلي وحاول مرة أخرى.')
-            : t('pages.warranty.serial_hint', 'يمكنك العثور على الرقم التسلسلي على ملصق المنتج.')}
+        <p className={`mt-3 text-center text-xs ${error ? 'text-danger' : 'text-gray-500'}`}>
+          {error ? errMsg : t('pages.warranty.serial_hint', 'يمكنك العثور على الرقم التسلسلي على ملصق المنتج.')}
         </p>
         <PrimaryButton type="submit" size="lg" disabled={busy} className="mt-10 w-full">
           {t('pages.warranty.activate', 'تفعيل الضمان')}

@@ -40,7 +40,6 @@ export const ProtectionBanner = memo(function ProtectionBanner({ data }: Protect
   return (
     <section
       id="protection-banner"
-      dir="rtl"
       className="w-full py-10 sm:py-16 lg:py-20"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

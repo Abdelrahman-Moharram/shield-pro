@@ -274,7 +274,7 @@ const isTabbedStyle = (style: string) =>
  * hiding non-first panels; the pill tab bar is styled off `s-block--featured-products`.
  */
 export const featuredProductsConfig = {
-  height: '450px',
+  height: 'var(--home-screen-h)',
   id: (data: FeaturedProductsData) =>
     `featured-products-${data.view_style ?? 'default'}-${data.position ?? 0}`,
   className: (data: FeaturedProductsData) => {

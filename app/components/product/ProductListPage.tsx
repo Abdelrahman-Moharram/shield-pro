@@ -9,6 +9,8 @@ import { ProductCardItem, type ProductItem } from '../shared/cards/ProductCardIt
 import { ProductListHero } from './ProductListHero';
 import { CATALOG_PRODUCTS } from '../../data/ProductsCatalogData';
 import { BottomSheet } from '../common';
+import { product, parseNextPageToken } from '@salla.sa/twilight-theme-engine/api/product';
+import { getProductFilterData } from './productHelpers';
 
 export type CategoryFilter = 'all' | 'thermal' | 'ppf' | 'offers';
 export type SortOption = 'latest' | 'price-asc' | 'price-desc' | 'popular';
@@ -17,12 +19,22 @@ function isSallaProduct(item: Product | ProductItem): item is Product {
   return 'name' in item;
 }
 
-export function ProductListPage({
-  page,
-  products: initialProducts,
-}: ProductListLoaderData) {
+export function ProductListPage({ page, source, query, pagination, products: initialProducts }: ProductListLoaderData) {
   const { theme } = useTwilight();
   const { t } = useTranslation();
+
+  const [extra, setExtra] = useState<Product[]>([]);
+  const [nextCursor, setNextCursor] = useState(pagination?.next);
+  const [loading, setLoading] = useState(false);
+  useEffect(() => { setExtra([]); setNextCursor(pagination?.next); }, [pagination?.next]);
+  const handleLoadMore = async () => {
+    if (!nextCursor || loading) return;
+    setLoading(true);
+    const { cursor, page: p } = parseNextPageToken(nextCursor);
+    const res = await product.list({ source: source?.type ?? 'latest', sourceValue: source?.value, sort: query?.sort, cursor, page: p }).catch(() => null);
+    if (res) { setExtra((prev) => [...prev, ...res.items]); setNextCursor(res.next); }
+    setLoading(false);
+  };
 
   // Active Category Tab
   const [activeTab, setActiveTab] = useState<CategoryFilter>('all');
@@ -50,11 +62,8 @@ export function ProductListPage({
 
   // Combined product pool: use Salla dynamic products if available, fallback to Figma catalog items
   const baseProducts = useMemo<(Product | ProductItem)[]>(() => {
-    if (initialProducts && initialProducts.length > 0) {
-      return initialProducts;
-    }
-    return CATALOG_PRODUCTS;
-  }, [initialProducts]);
+    return initialProducts?.length ? [...initialProducts, ...extra] : CATALOG_PRODUCTS;
+  }, [initialProducts, extra]);
 
   // Handle Tab Switch
   const handleTabChange = (tab: CategoryFilter) => {
@@ -104,8 +113,9 @@ export function ProductListPage({
       const isSalla = isSallaProduct(p);
       const title = isSalla ? p.name : p.title;
       const desc = isSalla ? p.subtitle || '' : p.description;
-      const category = !isSalla ? p.category : '';
-      const tintLevel = !isSalla ? p.tintLevel : '';
+      const sf = isSalla ? getProductFilterData(p) : null;
+      const category = !isSalla ? p.category : (sf?.category || '');
+      const tintLevel = !isSalla ? p.tintLevel : (sf?.tintLevel || '');
       const isTrafficCompliant = !isSalla ? Boolean(p.trafficCompliant) : true;
       const hasDiscount = isSalla ? Boolean(p.is_on_sale) : Boolean(p.originalPrice);
 
@@ -452,6 +462,15 @@ export function ProductListPage({
                   className="px-6 py-2.5 bg-[#D89F2D] text-neutral-900 font-bold rounded-xl text-sm hover:bg-[#c58f25] transition-colors"
                 >
                   إعادة ضبط الفلاتر
+                </button>
+              </div>
+            )}
+
+            {nextCursor && (
+              <div className="text-center mt-8">
+                <button type="button" onClick={handleLoadMore} disabled={loading}
+                  className="px-8 py-3 bg-[#D89F2D] text-neutral-900 font-bold rounded-xl hover:bg-[#c58f25] transition-colors disabled:opacity-50">
+                  {loading ? t('pages.products.loading', 'جاري التحميل...') : t('pages.products.show_more', 'عرض المزيد')}
                 </button>
               </div>
             )}

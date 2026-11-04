@@ -1,4 +1,5 @@
 import { memo, useState } from 'react';
+import { Link } from '@salla.sa/twilight-theme-engine/common';
 import { ShieldoLogo } from '../shared/icons/BrandIcons';
 
 export interface FooterLink {
@@ -56,7 +57,7 @@ const FOOTER_DATA = {
     {
       title: 'المساعدة',
       links: [
-        { label: 'الأسئلة الشائعة', url: '#faq' },
+        { label: 'الأسئلة الشائعة', url: '/faq' },
         { label: 'الشحن والتوصيل', url: '#shipping' },
         { label: 'الاستبدال والاسترجاع', url: '#returns' },
       ],
@@ -65,8 +66,8 @@ const FOOTER_DATA = {
       title: 'شيلدو بــــرو',
       links: [
         { label: 'من نحن', url: '#about' },
-        { label: 'الضمان', url: '#warranty' },
-        { label: 'مراكز التركيب المعتمدة', url: '#installers' },
+        { label: 'الضمان', url: '/warranty' },
+        { label: 'مراكز التركيب المعتمدة', url: '/branches' },
       ],
     },
   ],
@@ -252,12 +253,21 @@ export const Footer = memo(function Footer({ data }: FooterProps) {
                 <ul className="space-y-2.5 sm:space-y-3">
                   {section.links.map((link) => (
                     <li key={link.label}>
-                      <a
-                        href={link.url}
-                        className="text-xs sm:text-sm text-gray-300 hover:text-[#D89F2D] transition-colors font-normal inline-block"
-                      >
-                        {link.label}
-                      </a>
+                      {link.url.startsWith('/') ? (
+                        <Link
+                          to={link.url}
+                          className="text-xs sm:text-sm text-gray-300 hover:text-[#D89F2D] transition-colors font-normal inline-block"
+                        >
+                          {link.label}
+                        </Link>
+                      ) : (
+                        <a
+                          href={link.url}
+                          className="text-xs sm:text-sm text-gray-300 hover:text-[#D89F2D] transition-colors font-normal inline-block"
+                        >
+                          {link.label}
+                        </a>
+                      )}
                     </li>
                   ))}
                 </ul>

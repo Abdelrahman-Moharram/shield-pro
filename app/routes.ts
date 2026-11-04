@@ -5,4 +5,5 @@ import type { VirtualRouteNode } from '@tanstack/virtual-file-routes';
 export const routes: VirtualRouteNode[] = [
   route('/branches', 'branches.tsx'),
   route('/warranty', 'warranty.tsx'),
+  route('/faq', 'faq.tsx'),
 ];

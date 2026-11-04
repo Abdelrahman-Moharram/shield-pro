@@ -69,6 +69,15 @@ export const navbarData: MenuItem[] = [
     has_children: false,
     children: [],
   },
+  {
+    id: 8,
+    order: 8,
+    title: 'المساعدة',
+    url: '/faq',
+    target: '_self',
+    has_children: false,
+    children: [],
+  },
 ];
 
 export default navbarData;

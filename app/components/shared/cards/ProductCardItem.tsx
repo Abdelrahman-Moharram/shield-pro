@@ -70,7 +70,7 @@ export function ProductCardItem({ product, className = '' }: ProductCardItemProp
 
     if (isAdding) return;
 
-    // If product has options/variants, direct to product details page so user selects car model/year/package
+    // If product has options/variants, direct to product details page so user selects options/variants
     if (hasOptions && resolvedUrl && resolvedUrl !== '#products') {
       window.location.href = resolvedUrl;
       return;
@@ -192,7 +192,7 @@ export function ProductCardItem({ product, className = '' }: ProductCardItemProp
               ? 'bg-emerald-600 text-white'
               : 'bg-[#D89F2D] hover:bg-[#c58f25] text-neutral-900'
           }`}
-          title={hasOptions ? 'اختر تفاصيل السيارة' : 'أضف إلى السلة'}
+          title={hasOptions ? 'اختر المواصفات' : 'أضف إلى السلة'}
         >
           {isAdding ? (
             <svg className="w-4 h-4 animate-spin text-neutral-900" viewBox="0 0 24 24" fill="none">

@@ -68,8 +68,7 @@ export function HeroBanner({ data }: HeroBannerProps) {
   return (
     <section
       id="hero"
-      dir="rtl"
-      className="relative bg-secondary text-white overflow-hidden min-h-[580px] lg:min-h-[660px] flex items-center scroll-mt-20"
+      className="relative bg-secondary text-white overflow-hidden home-screen flex items-center scroll-mt-20"
     >
       {/* Decorative Subtle Background Lightning Vector */}
       <div className="absolute inset-0 pointer-events-none opacity-20 select-none overflow-hidden">
@@ -93,20 +92,20 @@ export function HeroBanner({ data }: HeroBannerProps) {
         - Text is positioned on the right and shifted toward the center so the flying rocks are right beside it.
       */}
       <div
-        className="hidden lg:flex absolute left-0 bottom-0 top-0 w-[54%] xl:w-[52%] 2xl:w-[50%] items-center justify-start pointer-events-none select-none z-10"
+        className="hidden lg:flex absolute start-0 bottom-0 top-0 w-[54%] xl:w-[52%] 2xl:w-[50%] items-center justify-start pointer-events-none select-none z-10"
         dir="ltr"
       >
         <img
           src={carImage}
           alt="Shieldo Pro Protection Car"
-          className="w-auto h-[92%] max-h-[640px] object-contain object-left drop-shadow-[0_20px_35px_rgba(0,0,0,0.6)]"
+          className="w-auto h-[92%] max-h-[min(60svh,640px)] object-contain object-left drop-shadow-[0_20px_35px_rgba(0,0,0,0.6)]"
           loading="eager"
         />
       </div>
 
       <div className="w-full max-w-7xl mx-auto relative z-20 flex flex-col lg:flex-row items-center justify-start py-12 lg:py-16">
         {/* On desktop in dir="rtl", justify-start puts this column naturally on the RIGHT side */}
-        <div className="w-full lg:w-[48%] xl:w-[45%] flex flex-col items-center lg:items-start text-center lg:text-right">
+        <div className="w-full lg:w-[48%] xl:w-[45%] flex flex-col items-center lg:items-start text-center lg:text-start">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-[50px] xl:text-[54px] font-extrabold text-white leading-[1.22] mb-5 tracking-tight">
             {title}
           </h1>

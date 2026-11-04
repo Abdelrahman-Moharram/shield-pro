@@ -35,7 +35,7 @@ export const WarrantyBanner = memo(function WarrantyBanner({ data }: WarrantyBan
   };
 
   return (
-    <section id="warranty" dir="rtl" className="w-full py-12 sm:py-16 lg:py-20 overflow-visible scroll-mt-20 relative">
+    <section id="warranty" className="w-full py-12 sm:py-16 lg:py-20 overflow-visible scroll-mt-20 relative">
       <span id="warranty-banner" className="absolute -top-20 pointer-events-none" aria-hidden="true" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div
@@ -46,7 +46,7 @@ export const WarrantyBanner = memo(function WarrantyBanner({ data }: WarrantyBan
           }}
         >
           {/* Right side (Desktop): 3D Shield + Text */}
-          <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 lg:gap-8 text-center md:text-right z-10">
+          <div className="flex flex-col md:flex-row items-center gap-4 sm:gap-6 lg:gap-8 text-center md:text-start z-10">
             {/* 3D Golden Shield Badge (protrudes past the top and bottom on desktop / top on mobile) */}
             <div className="shrink-0 -mt-16 sm:-mt-20 md:my-[-40px] lg:my-[-50px] pointer-events-none select-none">
               <img

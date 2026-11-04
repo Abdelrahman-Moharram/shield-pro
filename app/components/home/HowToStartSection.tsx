@@ -39,12 +39,12 @@ const STEPS_DATA: StepItem[] = [
 function StepCard({ step }: { step: StepItem }) {
   return (
     <div
-      className="relative rounded-2xl p-5 pt-8 sm:p-6 sm:pt-9 min-h-[140px] sm:min-h-[150px] flex flex-col justify-end text-right transition-transform duration-300 hover:-translate-y-1 shadow-[0_4px_20px_rgba(0,0,0,0.035)] overflow-hidden"
+      className="relative rounded-2xl p-5 pt-8 sm:p-6 sm:pt-9 min-h-[140px] sm:min-h-[150px] flex flex-col justify-end text-start transition-transform duration-300 hover:-translate-y-1 shadow-[0_4px_20px_rgba(0,0,0,0.035)] overflow-hidden"
       style={{ backgroundColor: '#FBF5EA' }}
     >
       {/* Top right cutout notch */}
       <svg
-        className="absolute top-0 right-0 w-12 h-10 sm:w-14 sm:h-11 pointer-events-none text-white fill-current"
+        className="absolute top-0 start-0 w-12 ltr:-scale-x-100 h-10 sm:w-14 sm:h-11 pointer-events-none text-white fill-current"
         viewBox="0 0 52 42"
         preserveAspectRatio="none"
       >
@@ -52,7 +52,7 @@ function StepCard({ step }: { step: StepItem }) {
       </svg>
 
       {/* Step number in the top-right notch */}
-      <span className="absolute top-1 right-3 sm:top-1.5 sm:right-3.5 text-xl sm:text-2xl font-black text-[#D89F2D] select-none">
+      <span className="absolute top-1 start-3 sm:top-1.5 sm:start-3.5 text-xl sm:text-2xl font-black text-[#D89F2D] select-none">
         {step.number}
       </span>
 
@@ -83,7 +83,7 @@ export const HowToStartSection = memo(function HowToStartSection({ data }: HowTo
   const steps = (data?.items as StepItem[]) || STEPS_DATA;
 
   return (
-    <section id="how-it-works" dir="rtl" className="w-full py-10 sm:py-14 lg:py-16 bg-white scroll-mt-20 relative">
+    <section id="how-it-works" className="w-full py-10 sm:py-14 lg:py-16 bg-white scroll-mt-20 relative">
       <span id="how-to-start" className="absolute -top-20 pointer-events-none" aria-hidden="true" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-2xl sm:text-3xl font-extrabold text-center text-neutral-900 mb-8 sm:mb-12 tracking-tight">

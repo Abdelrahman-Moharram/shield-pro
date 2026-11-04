@@ -45,7 +45,6 @@ export const WhyUsSection = memo(function WhyUsSection({ data }: WhyUsSectionPro
   return (
     <section
       id="why-us"
-      dir="rtl"
       className="relative overflow-hidden py-16 sm:py-20 lg:py-24 bg-[#FBF5EA] dark:bg-[#1A1A1A] w-full scroll-mt-20"
     >
       {/* Decorative Background Lightning Vector */}
@@ -57,7 +56,7 @@ export const WhyUsSection = memo(function WhyUsSection({ data }: WhyUsSectionPro
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 z-10">
         {/* Section Heading */}
-        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#2A2A2A] dark:text-white tracking-tight mb-12 sm:mb-16 text-right">
+        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#2A2A2A] dark:text-white tracking-tight mb-12 sm:mb-16 text-start">
           لماذا <span className="text-[#D89F2D]">شيلدو بــــرو ؟</span>
         </h2>
 

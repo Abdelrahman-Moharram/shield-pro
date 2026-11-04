@@ -44,8 +44,8 @@ export const ServicesSection = memo(function ServicesSection({ data }: ServicesS
   const sectionTitle = data?.title || 'ما الذي تحتاجه سيارتك؟';
 
   return (
-    <section id="services" dir="rtl" className="py-16 lg:py-24 bg-[#FFFDF9] dark:bg-[#1E1E1E] scroll-mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="services" className="py-16 lg:py-24 bg-[#FFFDF9] dark:bg-[#1E1E1E] home-screen flex items-center scroll-mt-20">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-3xl sm:text-4xl font-extrabold text-[#363636] dark:text-white text-center mb-10 lg:mb-14 tracking-tight">
           {sectionTitle}
         </h2>
@@ -68,7 +68,7 @@ export const ServicesSection = memo(function ServicesSection({ data }: ServicesS
               <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
 
               {/* Card Content */}
-              <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 lg:p-10 flex flex-col items-start text-right z-10">
+              <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8 lg:p-10 flex flex-col items-start text-start z-10">
                 <h3 className="text-2xl sm:text-3xl font-extrabold text-white mb-2 tracking-tight">
                   {card.title}
                 </h3>
@@ -85,7 +85,7 @@ export const ServicesSection = memo(function ServicesSection({ data }: ServicesS
                 >
                   <span>{card.buttonText}</span>
                   <svg
-                    className="w-4 h-4 transition-transform duration-300 group-hover/btn:-translate-x-1"
+                    className="w-4 h-4 transition-transform duration-300 rtl:group-hover/btn:-translate-x-1 ltr:group-hover/btn:translate-x-1"
                     viewBox="0 0 16 16"
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"

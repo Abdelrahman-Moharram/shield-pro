@@ -43,7 +43,6 @@ export const InstallationCentersSection = memo(function InstallationCentersSecti
   return (
     <section
       id="centers"
-      dir="rtl"
       className="relative w-full overflow-hidden py-16 sm:py-24 lg:py-32 bg-neutral-900 bg-center bg-cover flex items-center justify-center text-center scroll-mt-20"
       style={{
         backgroundImage: `url(${content.bgImage})`,
@@ -57,7 +56,7 @@ export const InstallationCentersSection = memo(function InstallationCentersSecti
 
       {/* Decorative Golden Outline Contour on the left */}
       <div
-        className="absolute left-0 top-1/2 -translate-y-1/2 w-44 sm:w-60 md:w-72 lg:w-80 max-h-[90%] pointer-events-none select-none flex items-center justify-start z-[1]"
+        className="absolute end-0 top-1/2 -translate-y-1/2 w-44 sm:w-60 md:w-72 lg:w-80 max-h-[90%] pointer-events-none select-none flex items-center justify-start z-[1]"
         aria-hidden="true"
       >
         <img
