@@ -20,8 +20,22 @@
     "show_tags": true,
     "slider_background_size": "contain",
     "imageZoom": false,
+    "product_show_specs": true,
+    "product_show_features": true,
+    "product_features_title": "لماذا تختار هذا المنتج؟",
+    "product_feature1_title": "تخفيض فوري للحرارة",
+    "product_feature1_desc": "يقلل بشكل كبير من حرارة المقصورة لراحة أكبر أثناء القيادة.",
+    "product_feature2_title": "خصوصية مع وضوح",
+    "product_feature2_desc": "يوفر الخصوصية التي تحتاجها دون التأثير على وضوح الرؤية ليلاً.",
+    "product_feature3_title": "حماية ضد الأشعة",
+    "product_feature3_desc": "يحمي الجلود والمقصورة من التلف الناتج عن الشمس الضارة.",
+    "product_show_install_banner": true,
+    "product_install_banner_title": "",
+    "product_install_banner_desc": "",
+    "product_install_banner_btn": "",
     "product_install_banner_url": "/branches",
-    "warranty_api_url": "http://localhost:3000/api/v1",
+    "product_traffic_compliance_title": "",
+    "product_traffic_compliance_text": "",
     "installation_centers": [
       {
         "name": "مركز شيلدو برو - فرع خريص",
@@ -48,7 +62,19 @@
         "question_en": "What is your return policy?",
         "answer_en": "You can request a return for unused items in their original packaging within 14 days of receipt."
       }
-    ]
+    ],
+    "warranty_api_url": "http://localhost:3000/api/v1",
+    "contact_phone": "0592052080",
+    "contact_email": "info@shieldopro.com",
+    "contact_whatsapp": "966592052080",
+    "social_instagram": "https://instagram.com/shieldopro",
+    "social_x": "https://x.com/shieldopro",
+    "social_facebook": "https://facebook.com/shieldopro",
+    "social_linkedin": "https://linkedin.com/company/shieldopro",
+    "static-label2": "<div class='rounded-lg' ><h6 > خيارات الهيدر</h6></div>",
+    "static-label4": "<div class='rounded-lg' ><h6 > خيارات أسفل الصفحة</h6></div>",
+    "static-label6": "<div class='rounded-lg' ><h6 > خيارات صفحة المنتج</h6></div>",
+    "static-label-branches": "<div ><strong>مراكز التركيب المعتمدة</strong></div>"
   },
   "layout": [
     {

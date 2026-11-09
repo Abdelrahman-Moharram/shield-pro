@@ -4,6 +4,7 @@ import { Link } from '@salla.sa/twilight-theme-engine/common';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { useTheme } from '@salla.sa/twilight-theme-engine/hooks/useTheme';
 import { PrimaryButton } from '../components/shared/buttons/PrimaryButton';
+import { getApiBase, postJson } from '../lib/backendApi';
 
 /** What the backend returns for an approved serial number. */
 interface Warranty {
@@ -13,24 +14,47 @@ interface Warranty {
   expiresAt: string; // ISO date
 }
 
-async function activate(serial: string, base?: string): Promise<Warranty> {
+type ActivationResult =
+  | { kind: 'activated'; warranty: Warranty }
+  | { kind: 'already'; expiresAt: string };
+
+function formatDate(iso: string, locale?: string) {
+  return new Date(iso).toLocaleDateString(`${locale || 'ar'}-u-nu-latn`, {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}
+
+async function activate(serial: string, base?: string): Promise<ActivationResult> {
   if (import.meta.env.DEV && !base) {
+    if (serial.toUpperCase() === 'USED') {
+      const now = new Date();
+      const end = new Date(now);
+      end.setFullYear(now.getFullYear() + 1);
+      return { kind: 'already', expiresAt: end.toISOString() };
+    }
     const now = new Date();
     const end = new Date(now);
     end.setFullYear(now.getFullYear() + 10);
     return {
-      warrantyNumber: 'WR-902341', productName: 'Shieldo Ultra PPF',
-      activatedAt: now.toISOString(), expiresAt: end.toISOString(),
+      kind: 'activated',
+      warranty: {
+        warrantyNumber: 'WR-902341', productName: 'Shieldo Ultra PPF',
+        activatedAt: now.toISOString(), expiresAt: end.toISOString(),
+      },
     };
   }
-  if (!base) throw new Error('no_api_url');
-  const res = await fetch(`${base}/warranty/activate`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ serial }),
-  });
-  if (!res.ok) throw new Error(String(res.status));
-  return (await res.json()).data;
+  if (!base) throw new Error('error');
+  const { status, data } = await postJson<any>(base, '/warranty/activate', { serial });
+  if (status === 200 && data) return { kind: 'activated', warranty: data as Warranty };
+  if (status === 409) {
+    const expiresAt = data?.error?.details?.expiresAt;
+    if (typeof expiresAt === 'string' && expiresAt.trim()) {
+      return { kind: 'already', expiresAt };
+    }
+  }
+  throw new Error(String(status));
 }
 
 export const Route = (createFileRoute as any)('/{-$locale}/warranty')({
@@ -65,24 +89,25 @@ const ERR_MAP: Record<string, [string, string]> = {
   '429': ['error_rate', 'محاولات كثيرة، حاول مرة أخرى بعد دقيقة.'],
 };
 
-function WarrantyPage() {
+export function WarrantyPage() {
   const { t, locale } = useTranslation();
   const { settings } = useTheme();
   const [serial, setSerial] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [warranty, setWarranty] = useState<Warranty | null>(null);
+  const [result, setResult] = useState<ActivationResult | null>(null);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
+    const trimmed = serial.trim();
+    if (!trimmed) return;
     setBusy(true);
     setError(null);
     try {
-      // ThemeSettings type is static; dynamic settings from twilight.json require a cast
-      const base = (settings as any)?.warranty_api_url?.trim().replace(/\/+$/, '');
-      setWarranty(await activate(serial.trim(), base));
+      setResult(await activate(trimmed, getApiBase(settings)));
     } catch (e: any) {
-      setError(e?.message || 'error');
+      const msg = e?.message;
+      setError(msg in ERR_MAP ? msg : 'error');
     } finally {
       setBusy(false);
     }
@@ -93,18 +118,37 @@ function WarrantyPage() {
   ];
   const errMsg = error && t(`pages.warranty.${errKey}` as any, defMsg);
 
-  if (warranty) {
-    const date = (iso: string) =>
-      new Date(iso).toLocaleDateString(`${locale || 'ar'}-u-nu-latn`, {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      });
+  if (result?.kind === 'already') {
+    return (
+      <Card>
+        <div role="status">
+          <svg viewBox="0 0 24 24" className="mx-auto mb-8 h-32 w-32 rounded-full bg-gray-100 p-8 text-secondary" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="16" x2="12" y2="12" />
+            <line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+          <h1 className="mb-10 text-2xl font-extrabold text-secondary">{t('pages.warranty.already_title', 'تم تفعيل ضمان هذا المنتج من قبل')}</h1>
+          <dl className="mb-10 rounded-2xl bg-gray-100 p-8">
+            <div>
+              <dt className="mb-2 text-sm text-gray-500">{t('pages.warranty.expires_at', 'تاريخ انتهاء الضمان')}</dt>
+              <dd className="font-bold text-primary">{formatDate(result.expiresAt, locale)}</dd>
+            </div>
+          </dl>
+          <Link to="/" className="inline-flex w-full justify-center rounded-xl bg-primary py-3.5 font-bold text-secondary-dark hover:bg-primary-hover">
+            {t('pages.warranty.back_home', 'العودة للرئيسية')}
+          </Link>
+        </div>
+      </Card>
+    );
+  }
+
+  if (result?.kind === 'activated') {
+    const { warranty } = result;
     const rows: [string, string, string?][] = [
       [t('pages.warranty.number', 'رقم الضمان'), warranty.warrantyNumber],
       [t('pages.warranty.product', 'اسم المنتج'), warranty.productName],
-      [t('pages.warranty.activated_at', 'تاريخ التفعيل'), date(warranty.activatedAt)],
-      [t('pages.warranty.expires_at', 'تاريخ انتهاء الضمان'), date(warranty.expiresAt), 'text-primary'],
+      [t('pages.warranty.activated_at', 'تاريخ التفعيل'), formatDate(warranty.activatedAt, locale)],
+      [t('pages.warranty.expires_at', 'تاريخ انتهاء الضمان'), formatDate(warranty.expiresAt, locale), 'text-primary'],
     ];
     return (
       <Card>
@@ -141,6 +185,9 @@ function WarrantyPage() {
           <input
             id="serial"
             required
+            maxLength={64}
+            autoComplete="off"
+            inputMode="text"
             value={serial}
             onChange={(e) => setSerial(e.target.value)}
             placeholder={t('pages.warranty.serial_placeholder', 'ادخل الرقم التسلسلي')}

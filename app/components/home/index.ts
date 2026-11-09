@@ -18,4 +18,4 @@ export { HowToStartSection } from './HowToStartSection';
 export { InstallationCentersSection } from './InstallationCentersSection';
 export { WarrantyBanner } from './WarrantyBanner';
 export { FeatureCardItem } from '../shared/cards/FeatureCardItem';
-export { Footer } from '../layout/Footer';
+export { Footer } from '../layout';

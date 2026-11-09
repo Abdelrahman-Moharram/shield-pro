@@ -1,6 +1,7 @@
 import { memo, useState } from 'react';
 import { Link } from '@salla.sa/twilight-theme-engine/common';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
+import { useTheme } from '@salla.sa/twilight-theme-engine/hooks/useTheme';
 import { ShieldoLogo } from '../shared/icons/BrandIcons';
 
 export interface FooterLink {
@@ -160,6 +161,15 @@ export const Footer = memo(function Footer({ data }: FooterProps) {
   const { t, isRTL } = useTranslation();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
+  const { settings } = useTheme();
+  const phone = (settings as any)?.contact_phone;
+  const emailAddr = (settings as any)?.contact_email;
+  const socials = [
+    { name: 'LinkedIn', icon: 'linkedin' as const, url: (settings as any)?.social_linkedin },
+    { name: 'X', icon: 'x' as const, url: (settings as any)?.social_x },
+    { name: 'Instagram', icon: 'instagram' as const, url: (settings as any)?.social_instagram },
+    { name: 'Facebook', icon: 'facebook' as const, url: (settings as any)?.social_facebook },
+  ].filter((s) => Boolean(s.url && s.url.trim()));
 
   const description = (data?.description as string) || t(FOOTER_DATA.descriptionKey, 'نحن نقدم أفضل حلول حماية السيارات في المملكة العربية السعودية بتقنيات عالمية.');
   const copyright = (data?.copyright as string) || t(FOOTER_DATA.copyrightKey, 'جميع الحقوق محفوظة 2026 Shieldo Pro. ©');
@@ -208,8 +218,9 @@ export const Footer = memo(function Footer({ data }: FooterProps) {
             </p>
 
             {/* Social Media Links */}
+            {socials.length > 0 && (
             <div className="flex items-center gap-3 mb-6">
-              {FOOTER_DATA.socials.map((social) => {
+              {socials.map((social) => {
                 const Icon = SOCIAL_ICONS[social.icon];
                 return (
                   <a
@@ -223,6 +234,7 @@ export const Footer = memo(function Footer({ data }: FooterProps) {
                 );
               })}
             </div>
+            )}
 
             {/* Newsletter Subscription */}
             <form onSubmit={handleSubscribe} className="relative flex items-center w-full max-w-sm">
@@ -284,18 +296,20 @@ export const Footer = memo(function Footer({ data }: FooterProps) {
             </h3>
             <ul className="space-y-3.5 text-xs sm:text-sm text-gray-300 font-normal">
               {/* Phone */}
-              <li className="flex items-center justify-start gap-2.5">
-                <span className="text-[#D89F2D] shrink-0">
-                  <PhoneIcon className="w-4 h-4" />
-                </span>
-                <a
-                  href={FOOTER_DATA.contact.phoneUrl}
-                  dir="ltr"
-                  className="hover:text-[#D89F2D] transition-colors"
-                >
-                  {FOOTER_DATA.contact.phone}
-                </a>
-              </li>
+              {phone && (
+                <li className="flex items-center justify-start gap-2.5">
+                  <span className="text-[#D89F2D] shrink-0">
+                    <PhoneIcon className="w-4 h-4" />
+                  </span>
+                  <a
+                    href={`tel:${phone}`}
+                    dir="ltr"
+                    className="hover:text-[#D89F2D] transition-colors"
+                  >
+                    {phone}
+                  </a>
+                </li>
+              )}
 
               {/* Address */}
               <li className="flex items-center justify-start gap-2.5">
@@ -306,17 +320,19 @@ export const Footer = memo(function Footer({ data }: FooterProps) {
               </li>
 
               {/* Email */}
-              <li className="flex items-center justify-start gap-2.5">
-                <span className="text-[#D89F2D] shrink-0">
-                  <MailIcon className="w-4 h-4" />
-                </span>
-                <a
-                  href={FOOTER_DATA.contact.emailUrl}
-                  className="hover:text-[#D89F2D] transition-colors"
-                >
-                  {FOOTER_DATA.contact.email}
-                </a>
-              </li>
+              {emailAddr && (
+                <li className="flex items-center justify-start gap-2.5">
+                  <span className="text-[#D89F2D] shrink-0">
+                    <MailIcon className="w-4 h-4" />
+                  </span>
+                  <a
+                    href={`mailto:${emailAddr}`}
+                    className="hover:text-[#D89F2D] transition-colors"
+                  >
+                    {emailAddr}
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
         </div>

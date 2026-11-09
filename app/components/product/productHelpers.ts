@@ -20,12 +20,17 @@ export interface ProductFeatureItem {
  * - Tags in any format (e.g., "VLT: 35%", "VLT 35%", "VLT - 35%", "VLT = 35%", etc.)
  * - Specifications written inside product description as fallbacks
  */
-export function getProductCustomFields(product: Product): CustomFieldItem[] {
+const isFeatureSection = (name: string) => /ميز|feature|لماذا/i.test(name);
+// Long free-text values are marketing copy, not specs (specs are short: "12%", "8 سنوات").
+const MAX_SPEC_VALUE_LENGTH = 40;
+
+export function parseCustomFields(product: Product): { specs: CustomFieldItem[]; features: CustomFieldItem[] } {
   const p = product as any;
   const list: CustomFieldItem[] = [];
+  const features: CustomFieldItem[] = [];
   const seen = new Set<string>();
 
-  const add = (label?: any, value?: any) => {
+  const add = (label?: any, value?: any, section = '') => {
     if (label == null || value == null) return;
     const l = String(label).trim();
     const v = String(value).trim();
@@ -33,47 +38,49 @@ export function getProductCustomFields(product: Product): CustomFieldItem[] {
     const key = l.toLowerCase();
     if (seen.has(key)) return;
     seen.add(key);
-    list.push({ label: l, value: v });
+    const target = isFeatureSection(section) || v.length > MAX_SPEC_VALUE_LENGTH ? features : list;
+    target.push({ label: l, value: v });
   };
 
-  const traverse = (item: any) => {
+  const traverse = (item: any, section = '') => {
     if (!item) return;
 
     if (Array.isArray(item)) {
-      item.forEach(traverse);
+      item.forEach((i) => traverse(i, section));
       return;
     }
 
     if (typeof item === 'object') {
+      const sec = String(item.title || item.name || item.label || section || '');
       if (Array.isArray(item.fields)) {
-        item.fields.forEach(traverse);
+        item.fields.forEach((i: any) => traverse(i, sec));
         return;
       }
       if (Array.isArray(item.items)) {
-        item.items.forEach(traverse);
+        item.items.forEach((i: any) => traverse(i, sec));
         return;
       }
       if (Array.isArray(item.values)) {
-        item.values.forEach(traverse);
+        item.values.forEach((i: any) => traverse(i, sec));
         return;
       }
       if (Array.isArray(item.sections)) {
-        item.sections.forEach(traverse);
+        item.sections.forEach((i: any) => traverse(i, sec));
         return;
       }
 
       const label = item.label || item.name || item.key || item.title;
       const value = item.value || item.val;
       if (label && value != null && typeof value !== 'object') {
-        add(label, value);
+        add(label, value, section);
         return;
       }
 
       for (const [k, v] of Object.entries(item)) {
         if (v != null && typeof v !== 'object') {
-          add(k, v);
+          add(k, v, section);
         } else if (typeof v === 'object') {
-          traverse(v);
+          traverse(v, section);
         }
       }
     }
@@ -140,7 +147,41 @@ export function getProductCustomFields(product: Product): CustomFieldItem[] {
     }
   }
 
-  return list;
+  return { specs: list, features };
+}
+
+/** Splits Salla metadata sections (client fetch) into short specs and long "features" copy. */
+export async function fetchProductFields(
+  productId: number | string
+): Promise<{ specs: CustomFieldItem[]; features: CustomFieldItem[] } | null> {
+  try {
+    const salla = (window as any).salla || (window as any).Salla;
+    if (!salla?.api?.metadata?.fetchValues) return null;
+    const res = await salla.api.metadata.fetchValues('product', productId);
+    const data = res?.data;
+    const sections: any[] = Array.isArray(data) ? data[0]?.sections || data : data?.sections || res?.sections || [];
+    const specs: CustomFieldItem[] = [];
+    const features: CustomFieldItem[] = [];
+    for (const sec of sections) {
+      const raw = sec?.fields ?? sec?.items ?? [];
+      const fields = Array.isArray(raw) ? raw : Object.entries(raw).map(([name, value]) => ({ name, value }));
+      const name = String(sec?.title || sec?.name || sec?.label || '');
+      for (const f of fields as any[]) {
+        const label = f.name || f.label || f.title || f.key;
+        const value = f.value ?? f.val;
+        if (!label || value == null || String(value).trim() === '') continue;
+        const item = { label: String(label).trim(), value: String(value).trim() };
+        (isFeatureSection(name) || item.value.length > MAX_SPEC_VALUE_LENGTH ? features : specs).push(item);
+      }
+    }
+    return specs.length || features.length ? { specs, features } : null;
+  } catch {
+    return null;
+  }
+}
+
+export function getProductCustomFields(product: Product): CustomFieldItem[] {
+  return parseCustomFields(product).specs;
 }
 
 /**
@@ -249,24 +290,8 @@ export function getProductFeatures(
     }
   }
 
-  // 2. Custom Fields section named "المميزات" or "Features"
-  if (Array.isArray(p.custom_fields)) {
-    for (const section of p.custom_fields) {
-      const sectionName = (section?.title || section?.name || '').toLowerCase();
-      if (
-        sectionName.includes('ميز') ||
-        sectionName.includes('feature') ||
-        sectionName.includes('لماذا')
-      ) {
-        const items = section.fields || section.items || [];
-        if (Array.isArray(items)) {
-          for (const item of items) {
-            add(item.title || item.name || item.label, item.desc || item.description || item.value);
-          }
-        }
-      }
-    }
-  }
+  // 2. Custom Fields section named "المميزات" (field name = title, value = description)
+  for (const f of parseCustomFields(product).features) add(f.label, f.value);
 
   // 3. Tags prefixed with "ميزة:" or "feature:" (e.g. "ميزة: تخفيض فوري للحرارة - يقلل بشكل كبير...")
   const rawTags = Array.isArray(p.tags)

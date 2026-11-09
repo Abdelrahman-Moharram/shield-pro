@@ -5,7 +5,8 @@ import { hapticImpact } from '@salla.sa/twilight-theme-engine/native-app';
 import { getActiveCurrency } from '@salla.sa/twilight-theme-engine/api/client';
 import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
 import type { Product, ProductOption } from '@salla.sa/twilight-theme-engine/types';
-import { getProductCustomFields, isAutomotiveTintProduct, type CustomFieldItem } from './productHelpers';
+import { isAutomotiveTintProduct } from './productHelpers';
+import { useProductFields } from './useProductFields';
 
 interface AddToCartFormProps {
   product: Product;
@@ -149,51 +150,7 @@ export function AddToCartForm({
     (settings.product_traffic_compliance_text as string) ||
     t('pages.products.traffic_compliance_text', 'هذا المنتج متوافق مع إرشادات المرور السعودي، يرجى مراجعة أنظمة المرور المحلية قبل الاستخدام.');
 
-  const getCombinedSpecs = () => {
-    const s1 = getProductCustomFields(product);
-    if (s1.length > 0) return s1;
-    if (initialProduct) {
-      const s2 = getProductCustomFields(initialProduct);
-      if (s2.length > 0) return s2;
-    }
-    return [];
-  };
-
-  // KPI specs (first 3 only — shown inside the buy box as UVR/IRR/TSER row)
-  const [specs, setSpecs] = useState<CustomFieldItem[]>(getCombinedSpecs);
-
-  useEffect(() => {
-    const current = getCombinedSpecs();
-    if (current.length > 0) {
-      setSpecs(current);
-      return;
-    }
-
-    let isMounted = true;
-    const fetchMetadata = async () => {
-      try {
-        const salla = (window as any).salla || (window as any).Salla;
-        if (!salla?.api?.metadata?.fetchValues) return;
-        const res = await salla.api.metadata.fetchValues('product', product.id);
-        const data = res?.data;
-        const rawSections = Array.isArray(data)
-          ? (data[0]?.sections || data)
-          : (data?.sections || res?.sections || []);
-        const fetched: CustomFieldItem[] = [];
-        for (const sec of rawSections) {
-          const fields = Array.isArray(sec?.fields) ? sec.fields : Array.isArray(sec?.items) ? sec.items : [];
-          for (const f of fields) {
-            const label = f.name || f.label || f.title || f.key;
-            const value = f.value || f.val;
-            if (label && value != null) fetched.push({ label: String(label).trim(), value: String(value).trim() });
-          }
-        }
-        if (isMounted && fetched.length > 0) setSpecs(fetched);
-      } catch { /* silent */ }
-    };
-    fetchMetadata();
-    return () => { isMounted = false; };
-  }, [product.id, product, initialProduct]);
+  const { specs } = useProductFields(product, initialProduct);
 
   const handleQuantityChange = (newQty: number) => {
     setQuantity(newQty);
@@ -222,13 +179,20 @@ export function AddToCartForm({
     if (isComplete && window.salla?.product?.getPrice) window.salla.product.getPrice(new FormData(form));
   };
 
-  const handleBuyNow = (e: React.MouseEvent) => {
+  const handleBuyNow = async (e: React.MouseEvent) => {
     e.preventDefault();
     const form = formRef.current;
     if (!form) return;
     hapticImpact('medium');
-    form.requestSubmit();
-    setTimeout(() => { window.location.href = '/checkout'; }, 600);
+    const optionsEl = form.querySelector('salla-product-options') as any;
+    if (optionsEl?.validateAndScroll && !(await optionsEl.validateAndScroll())) return;
+    if (typeof form.reportValidity === 'function' && !form.reportValidity()) return;
+    try {
+      await (window.salla?.cart?.addItem as any)?.(new FormData(form));
+      await window.salla?.cart?.submit();
+    } catch {
+      // Handled by Salla SDK events
+    }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
