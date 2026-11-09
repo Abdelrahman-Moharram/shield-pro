@@ -636,6 +636,63 @@
             ]
         },
         {
+            "id": "contact_phone",
+            "type": "string",
+            "format": "text",
+            "label": "رقم الهاتف",
+            "value": "",
+            "required": false
+        },
+        {
+            "id": "contact_email",
+            "type": "string",
+            "format": "text",
+            "label": "البريد الإلكتروني",
+            "value": "",
+            "required": false
+        },
+        {
+            "id": "contact_whatsapp",
+            "type": "string",
+            "format": "text",
+            "label": "رقم الواتساب",
+            "description": "رقم الواتساب مع مفتاح الدولة بدون + أو أصفار (مثال: 966592052080)",
+            "value": "",
+            "required": false
+        },
+        {
+            "id": "social_instagram",
+            "type": "string",
+            "format": "text",
+            "label": "رابط انستقرام",
+            "value": "",
+            "required": false
+        },
+        {
+            "id": "social_x",
+            "type": "string",
+            "format": "text",
+            "label": "رابط منصة إكس",
+            "value": "",
+            "required": false
+        },
+        {
+            "id": "social_facebook",
+            "type": "string",
+            "format": "text",
+            "label": "رابط فيسبوك",
+            "value": "",
+            "required": false
+        },
+        {
+            "id": "social_linkedin",
+            "type": "string",
+            "format": "text",
+            "label": "رابط لينكد إن",
+            "value": "",
+            "required": false
+        },
+        {
             "id": "warranty_api_url",
             "type": "string",
             "format": "text",

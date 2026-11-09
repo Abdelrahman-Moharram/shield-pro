@@ -1,6 +1,7 @@
 import type { Product } from '@salla.sa/twilight-theme-engine/types';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
+import { useProductFields } from './useProductFields';
 import { getProductFeatures, type ProductFeatureItem } from './productHelpers';
 
 interface ProductFeaturesProps {
@@ -78,7 +79,10 @@ export function ProductFeatures({ product }: ProductFeaturesProps) {
 
   if (settings.product_show_features === false) return null;
 
-  const features = getProductFeatures(product, t);
+  const { features: fieldFeatures } = useProductFields(product);
+  const features: ProductFeatureItem[] = fieldFeatures.length
+    ? fieldFeatures.map((f) => ({ title: f.label, desc: f.value }))
+    : getProductFeatures(product, t);
   if (features.length === 0) return null;
 
   const sectionTitle = (settings.product_features_title as string) || t('pages.products.features_title', 'لماذا تختار هذا المنتج؟');

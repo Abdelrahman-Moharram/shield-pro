@@ -31,6 +31,8 @@ function isSallaProduct(product: Product | ProductItem): product is Product {
   return 'name' in product || 'regular_price' in product || 'is_on_sale' in product || 'main_image' in product;
 }
 
+const SHOW_CARD_ADD_BUTTON = false; // individuals-only launch: shoppers open the product page first
+
 export function ProductCardItem({ product, className = '' }: ProductCardItemProps) {
   const { t, isRTL } = useTranslation();
   const [isAdding, setIsAdding] = useState(false);
@@ -184,33 +186,35 @@ export function ProductCardItem({ product, className = '' }: ProductCardItemProp
           )}
         </div>
 
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          disabled={isAdding}
-          aria-label={isSuccess ? t('pages.products.added_label', 'تمت الإضافة') : t('pages.products.add_to_cart', 'أضف للسلة')}
-          className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm ${
-            isSuccess
-              ? 'bg-emerald-600 text-white'
-              : 'bg-[#D89F2D] hover:bg-[#c58f25] text-neutral-900'
-          }`}
-          title={hasOptions ? t('pages.products.select_options_label', 'اختر المواصفات') : t('pages.products.add_to_cart', 'أضف إلى السلة')}
-        >
-          {isAdding ? (
-            <svg className="w-4 h-4 animate-spin text-neutral-900" viewBox="0 0 24 24" fill="none">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
-            </svg>
-          ) : isSuccess ? (
-            <svg className="w-5 h-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-            </svg>
-          ) : (
-            <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-            </svg>
-          )}
-        </button>
+        {SHOW_CARD_ADD_BUTTON && (
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={isAdding}
+            aria-label={isSuccess ? t('pages.products.added_label', 'تمت الإضافة') : t('pages.products.add_to_cart', 'أضف للسلة')}
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center transition-all duration-200 active:scale-95 shadow-sm ${
+              isSuccess
+                ? 'bg-emerald-600 text-white'
+                : 'bg-[#D89F2D] hover:bg-[#c58f25] text-neutral-900'
+            }`}
+            title={hasOptions ? t('pages.products.select_options_label', 'اختر المواصفات') : t('pages.products.add_to_cart', 'أضف إلى السلة')}
+          >
+            {isAdding ? (
+              <svg className="w-4 h-4 animate-spin text-neutral-900" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+            ) : isSuccess ? (
+              <svg className="w-5 h-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+              </svg>
+            )}
+          </button>
+        )}
       </div>
     </div>
   );

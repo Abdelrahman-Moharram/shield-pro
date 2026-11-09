@@ -2,6 +2,7 @@ import { useMemo, useState, type FormEvent } from 'react';
 import { createFileRoute } from '@tanstack/react-router';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { useTheme } from '@salla.sa/twilight-theme-engine/hooks/useTheme';
+import { getApiBase, postJson } from '../lib/backendApi';
 import { PrimaryButton } from '../components/shared/buttons/PrimaryButton';
 
 export const Route = (createFileRoute as any)('/{-$locale}/faq')({
@@ -90,6 +91,9 @@ const FAQS: FaqItem[] = [
 function FaqPage() {
   const { t, locale } = useTranslation();
   const { settings } = useTheme();
+  const contactPhone = (settings as any)?.contact_phone;
+  const contactEmail = (settings as any)?.contact_email;
+  const contactWhatsapp = (settings as any)?.contact_whatsapp;
 
   // Contact form state
   const [fullName, setFullName] = useState('');
@@ -106,13 +110,19 @@ function FaqPage() {
     e.preventDefault();
     if (busy) return;
     setError(null);
-    const base = (settings as any)?.warranty_api_url?.trim().replace(/\/+$/, '');
+    const base = getApiBase(settings);
     const done = () => { setSubmitted(true); setFullName(''); setEmail(''); setSubject(''); setMessage(''); setWebsite(''); setTimeout(() => setSubmitted(false), 4000); };
     if (import.meta.env.DEV && !base) return done();
     if (!base) return setError('error');
     setBusy(true);
     try {
-      const res = await fetch(`${base}/contact`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ fullName, email, subject, message, website }) });
+      const res = await postJson(base, '/contact', {
+        fullName: fullName.trim(),
+        email: email.trim(),
+        subject: subject.trim(),
+        message: message.trim(),
+        website: website.trim(),
+      });
       if (res.status === 201) done(); else setError(res.status === 429 ? '429' : 'error');
     } catch { setError('error'); } finally { setBusy(false); }
   };
@@ -191,6 +201,7 @@ function FaqPage() {
                 </div>
 
                 {/* 2. Phone */}
+                {contactPhone && (
                 <div className="flex items-center gap-4">
                   <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-primary/25 text-primary">
                     <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -202,16 +213,18 @@ function FaqPage() {
                       {t('pages.faq.contact_phone_title', 'اتصل بنا')}
                     </span>
                     <a
-                      href="tel:0592052080"
+                      href={`tel:${contactPhone}`}
                       dir="ltr"
                       className="mt-1 inline-block text-[13px] text-[#BDBDBD] hover:text-white"
                     >
-                      0592052080
+                      {contactPhone}
                     </a>
                   </div>
                 </div>
+                )}
 
                 {/* 3. Email */}
+                {contactEmail && (
                 <div className="flex items-center gap-4">
                   <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-primary/25 text-primary">
                     <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -224,15 +237,17 @@ function FaqPage() {
                       {t('pages.faq.contact_email_title', 'الدعم عبر البريد الإلكتروني')}
                     </span>
                     <a
-                      href="mailto:support@shieldopro.com"
+                      href={`mailto:${contactEmail}`}
                       className="mt-1 inline-block text-[13px] text-[#BDBDBD] hover:text-white"
                     >
-                      support@shieldopro.com
+                      {contactEmail}
                     </a>
                   </div>
                 </div>
+                )}
 
                 {/* 4. WhatsApp */}
+                {contactWhatsapp && (
                 <div className="flex items-center gap-4">
                   <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-primary/25 text-primary">
                     <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -244,16 +259,17 @@ function FaqPage() {
                       {t('pages.faq.contact_whatsapp_title', 'تواصل عبر الواتساب')}
                     </span>
                     <a
-                      href="https://wa.me/966592052080"
+                      href={`https://wa.me/${contactWhatsapp}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       dir="ltr"
                       className="mt-1 inline-block text-[13px] text-[#BDBDBD] hover:text-white"
                     >
-                      0592052080
+                      {contactWhatsapp}
                     </a>
                   </div>
                 </div>
+                )}
               </div>
             </div>
 
@@ -276,6 +292,7 @@ function FaqPage() {
                         id="faq-name"
                         type="text"
                         required
+                        maxLength={80}
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         placeholder={t('pages.faq.form_name_placeholder', 'الاسم الكامل')}
@@ -290,6 +307,7 @@ function FaqPage() {
                         id="faq-email"
                         type="email"
                         required
+                        maxLength={120}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder={t('pages.faq.form_email_placeholder', 'البريد الإلكتروني')}
@@ -350,6 +368,7 @@ function FaqPage() {
                     <textarea
                       id="faq-message"
                       required
+                      maxLength={2000}
                       rows={4}
                       value={message}
                       onChange={(e) => setMessage(e.target.value)}
@@ -459,20 +478,24 @@ function FaqPage() {
             </p>
 
             <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <a
-                href="https://wa.me/966592052080"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-[#2B2B2B] shadow-sm transition-all duration-200 hover:bg-primary-hover hover:shadow active:scale-[0.98] active:bg-primary-dark sm:w-auto"
-              >
-                {t('pages.faq.cta_chat_now', 'تحدث معنا الآن')}
-              </a>
-              <a
-                href="mailto:support@shieldopro.com"
-                className="inline-flex w-full items-center justify-center rounded-xl border border-white bg-transparent px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:bg-white/10 active:scale-[0.98] sm:w-auto"
-              >
-                {t('pages.faq.cta_send_email', 'ارسل بريداً إلكترونياً')}
-              </a>
+              {contactWhatsapp && (
+                <a
+                  href={`https://wa.me/${contactWhatsapp}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex w-full items-center justify-center rounded-xl bg-primary px-6 py-2.5 text-sm font-bold text-[#2B2B2B] shadow-sm transition-all duration-200 hover:bg-primary-hover hover:shadow active:scale-[0.98] active:bg-primary-dark sm:w-auto"
+                >
+                  {t('pages.faq.cta_chat_now', 'تحدث معنا الآن')}
+                </a>
+              )}
+              {contactEmail && (
+                <a
+                  href={`mailto:${contactEmail}`}
+                  className="inline-flex w-full items-center justify-center rounded-xl border border-white bg-transparent px-6 py-2.5 text-sm font-bold text-white transition-all duration-200 hover:bg-white/10 active:scale-[0.98] sm:w-auto"
+                >
+                  {t('pages.faq.cta_send_email', 'ارسل بريداً إلكترونياً')}
+                </a>
+              )}
             </div>
           </div>
         </div>

@@ -21,6 +21,7 @@ export const FeaturedProductsSection = memo(function FeaturedProductsSection({
   const viewAllUrl = data?.display_all_url || '#products';
 
   const [productsList, setProductsList] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     let isMounted = true;
@@ -29,12 +30,17 @@ export const FeaturedProductsSection = memo(function FeaturedProductsSection({
     productApi
       .list({ source: 'latest', perPage: 8 })
       .then((res) => {
-        if (isMounted && res?.items && res.items.length > 0) {
-          setProductsList(res.items);
+        if (isMounted) {
+          if (res?.items && res.items.length > 0) {
+            setProductsList(res.items);
+          }
+          setIsLoading(false);
         }
       })
       .catch((err) => {
-        // Fallback to static demo data during local preview or offline mode
+        if (isMounted) {
+          setIsLoading(false);
+        }
         console.warn('Salla products API:', err);
       });
 
@@ -49,6 +55,25 @@ export const FeaturedProductsSection = memo(function FeaturedProductsSection({
     const offset = direction === 'next' ? -cardWidth : cardWidth;
     sliderRef.current.scrollBy({ left: offset, behavior: 'smooth' });
   };
+
+  if (isLoading) {
+    return (
+      <section
+        id="products"
+        data-testid="featured-products-skeleton"
+        className="py-14 lg:py-20 bg-[#FFFDF9] dark:bg-[#1E1E1E] home-screen scroll-mt-20 min-h-[400px]"
+      >
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-pulse">
+          <div className="h-8 w-48 bg-gray-200 dark:bg-neutral-800 rounded mb-8" />
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-72 rounded-2xl bg-gray-200 dark:bg-neutral-800" />
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (productsList.length === 0) return null;
 

@@ -1,8 +1,7 @@
 import type { Product } from '@salla.sa/twilight-theme-engine/types';
 import { useTranslation } from '@salla.sa/twilight-theme-engine/i18n';
 import { useTwilight } from '@salla.sa/twilight-theme-engine/providers';
-import { useEffect, useState } from 'react';
-import { getProductCustomFields, type CustomFieldItem } from './productHelpers';
+import { useProductFields } from './useProductFields';
 
 interface ProductSpecsProps {
   product: Product;
@@ -18,62 +17,7 @@ export function ProductSpecs({ product, initialProduct }: ProductSpecsProps) {
   const { theme } = useTwilight();
   const settings = (theme?.settings || {}) as Record<string, any>;
 
-  const getCombinedSpecs = () => {
-    const s1 = getProductCustomFields(product);
-    if (s1.length > 0) return s1;
-    if (initialProduct) {
-      const s2 = getProductCustomFields(initialProduct);
-      if (s2.length > 0) return s2;
-    }
-    return [];
-  };
-
-  const [specs, setSpecs] = useState<CustomFieldItem[]>(getCombinedSpecs);
-
-  useEffect(() => {
-    const current = getCombinedSpecs();
-    if (current.length > 0) {
-      setSpecs(current);
-      return;
-    }
-
-    let isMounted = true;
-    const fetchMetadata = async () => {
-      try {
-        const salla = (window as any).salla || (window as any).Salla;
-        if (!salla?.api?.metadata?.fetchValues) return;
-        const res = await salla.api.metadata.fetchValues('product', product.id);
-        const data = res?.data;
-        const rawSections = Array.isArray(data)
-          ? (data[0]?.sections || data)
-          : (data?.sections || res?.sections || []);
-        const fetched: CustomFieldItem[] = [];
-        for (const sec of rawSections) {
-          const fields = Array.isArray(sec?.fields)
-            ? sec.fields
-            : Array.isArray(sec?.items)
-              ? sec.items
-              : typeof sec?.fields === 'object' && sec.fields !== null
-                ? Object.entries(sec.fields).map(([k, v]) => ({ name: k, value: v }))
-                : [];
-          for (const f of fields) {
-            const label = f.name || f.label || f.title || f.key;
-            const value = f.value || f.val;
-            if (label && value != null) {
-              fetched.push({ label: String(label).trim(), value: String(value).trim() });
-            }
-          }
-        }
-        if (isMounted && fetched.length > 0) setSpecs(fetched);
-      } catch {
-        /* silent */
-      }
-    };
-    fetchMetadata();
-    return () => {
-      isMounted = false;
-    };
-  }, [product.id, product, initialProduct]);
+  const { specs } = useProductFields(product, initialProduct);
 
   if (settings.product_show_specs === false) return null;
   if (!specs || specs.length === 0) return null;

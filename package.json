@@ -11,7 +11,8 @@
     "check:manifest": "twilight-check-manifest",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "sync:preview": "node scripts/sync-preview.mjs"
   },
   "dependencies": {
     "@salla.sa/twilight-components-react": "^3.0.0-beta.1",
